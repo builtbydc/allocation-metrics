@@ -152,6 +152,16 @@ function mouseClicked() {
     ham.click();
 }
 
+function touchStarted() {
+        for(let i = 0; i < 8; i++){
+            btns[i].wClick();
+            btns[i].shown = false;
+        }
+        if(ham.state) setup();
+        ham.click();
+    
+}
+
 function threeD(val) {
     if(val >= 1000) return Math.round(val);
     if(val < 0.001) return 0;
