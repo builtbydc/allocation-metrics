@@ -22,6 +22,7 @@ function setup() {
     textAlign(LEFT);
 
     if (windowWidth > windowHeight) {
+        eham = true;
         dim = windowHeight;
         mdim = dim / 1000;
         margin = 70 * mdim;
@@ -151,12 +152,16 @@ function draw() {
 }
 
 function mouseClicked() {
-    for (let i = 0; i < 8; i++) {
-        btns[i].wClick();
-        btns[i].shown = false;
+    if(eham) {
+        for (let i = 0; i < 8; i++) {
+            btns[i].wClick();
+            btns[i].shown = false;
+        }
+        if (ham.state) setup();
+        ham.click();
+    } else {
+        touched();
     }
-    if (ham.state) setup();
-    ham.click();
 }
 
 function touched() {
