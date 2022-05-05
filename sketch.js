@@ -167,6 +167,7 @@ function mouseClicked() {
 function touched() {
     workload++;
     workload %= 8;
+    setup();
 } window.ontouchend = touched;
 
 function threeD(val) {
