@@ -1,5 +1,6 @@
 import math
 import sys
+import os
 import json
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
@@ -36,7 +37,7 @@ for lst in L:
 
 maxTime = L[len(L) - 1][0]
 
-lenB = 512
+lenB = 1600
 ivl = math.ceil(maxTime / lenB)
 
 # initialize B
@@ -90,34 +91,47 @@ for i in range(len(B)):
         if count > 0:
             y4[i] = total / count # avg. number of re-accesses
 
-fig, ax = plt.subplots(2, 2)
+# fig, ax = plt.subplots(2, 2, figsize=[14, 7])
 
-ax[0, 0].plot(y1, linewidth=1)
-ax[0, 0].set_title("Number of allocations in time window")
+# fig.suptitle(sys.argv[3])
 
-ax[1, 0].plot(y2, linewidth=1)
-ax[1, 0].set_title("Percentage of pages re-accessed\n[pages allocated in this window]")
-ax[1, 0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+# ax[0, 0].plot(y1, linewidth=1)
+# ax[0, 0].set_ylabel("Number of allocations in time window")
+
+# ax[1, 0].plot(y2, linewidth=1)
+# ax[1, 0].set_ylabel("Percentage of pages re-accessed\n[pages allocated in this window]")
+# ax[1, 0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
 
 y3[len(y3)-1] = 0  # bug fix
-ax[0, 1].plot(y3, linewidth=1)
-ax[0, 1].set_title("Average time until first re-access\n[re-accessed pages only]")
+# ax[0, 1].plot(y3, linewidth=1)
+# ax[0, 1].set_ylabel("Average time until first re-access (ms)\n[re-accessed pages only]")
 
-ax[1, 1].plot(y4, linewidth=1)
-ax[1, 1].set_title("Average number of re-accesses\n[re-accessed pages only]")
+# ax[1, 1].plot(y4, linewidth=1)
+# ax[1, 1].set_ylabel("Average number of re-accesses\n[re-accessed pages only]")
 
-ax[0, 0].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
-ax[0, 1].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
-ax[1, 0].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
-ax[1, 1].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
+# ax[0, 0].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
+# ax[0, 1].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
+# ax[1, 0].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
+# ax[1, 1].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
 
-fig.suptitle(sys.argv[2])
-fig.tight_layout()
-plt.show()
+# plt.tight_layout(pad=2)
+# plt.savefig(sys.argv[2])
 
-metrics = {}
-for i in range(len(B)):
-    metrics["window" + str(i)] = [y1[i], y2[i], y3[i], y4[i]]
+metrics = []
+for i in range(len(B)-1):
+    metrics.append("\t[" + str(y1[i]) + ", " + str(y2[i]) + 
+                   ", " + str(y3[i]) + ", " + str(y4[i]) + "],\n")
+metrics.append("\t[" + str(y1[len(B)-1]) + ", " + str(y2[len(B)-1]) + 
+                   ", " + str(y3[len(B)-1]) + ", " + str(y4[len(B)-1]) + "]\n")
 
-# print(metrics)
-
+filename = sys.argv[3] + "-metrics.js"
+try:
+    os.remove(filename)
+except:
+    except_temp = 0
+    
+mfile = open(filename, "w")
+mfile.write("const " + sys.argv[3] + "metrics = [\n")
+mfile.writelines(metrics)
+mfile.write("]")
+mfile.close()
