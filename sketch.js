@@ -9,6 +9,8 @@ let btns;
 
 let mdim;
 
+let eham;
+
 let dim;
 let margin;
 let x0;
@@ -26,6 +28,7 @@ function setup() {
         x0 = (windowWidth - dim) / 2 + margin;
         y0 = margin;
     } else {
+        eham = false;
         dim = windowWidth;
         mdim = dim / 1000;
         margin = 70 * mdim;
@@ -131,7 +134,11 @@ function setup() {
 } window.onresize = setup;
 
 function draw() {
-    ham.hDisplay();
+    if(eham) {
+        ham.hDisplay();
+    } else {
+        ham.shown = false;
+    }
     if (ham.state) {
         noStroke();
         fill(60, 9, 108, 20);
@@ -152,11 +159,10 @@ function mouseClicked() {
     ham.click();
 }
 
-function touchStarted() {
+function touched() {
     workload++;
     workload %= 8;
-
-}
+} window.ontouchend = touched;
 
 function threeD(val) {
     if (val >= 1000) return Math.round(val);
