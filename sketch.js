@@ -6,6 +6,9 @@ function preload() {
 let workload = 0;
 let ham;
 let btns;
+let zb;
+let showZ = false;
+
 
 let mdim;
 
@@ -39,8 +42,8 @@ function setup() {
 
     noFill();
     stroke(255);
-    strokeWeight(7 * mdim);
-    rect(x0, y0, dim - 2 * margin, dim - 2 * margin);
+    strokeWeight(4*mdim);
+    rect(x0 - 4*mdim, y0-4*mdim, dim - 2 * margin + 8*mdim, dim - 2 * margin + 8*mdim);
 
     strokeWeight(1);
     let gradientTopEdge = y0 + 50 * mdim;
@@ -63,47 +66,48 @@ function setup() {
     textAlign(LEFT);
     textSize(28 * mdim);
     push();
-    translate(x0 - 28 * mdim, y0 + 740 * mdim);
+    translate(x0 - 28 * mdim, y0 + 600 * mdim);
     rotate(radians(-90));
-    text("time between allocation and first access ⟶", 0, 0);
+    text("number of accesses ⟶", 0, 0);
     pop();
-
-    text("number of accesses ⟶", x0 + 265 * mdim, y0 + dim - 2 * margin + 45 * mdim);
+    
+    text("time between allocation and first access ⟶", x0 + 120 * mdim, y0 + dim - 2 * margin + 45 * mdim);
 
     let hm;
     let wname;
     if (workload === 0) {
-        hm = new HeatMap(BFSmetrics);
+        hm = new HeatMap(BFSmetrics, BFSmaxDT, BFSmaxCOUNT, BFSlength);
         wname = "GAPBS BFS";
     }
     else if (workload === 1) {
-        hm = new HeatMap(TCmetrics);
+        hm = new HeatMap(TCmetrics, TCmaxDT, TCmaxCOUNT, TClength);
         wname = "GAPBS TC";
     }
     else if (workload === 2) {
-        hm = new HeatMap(NASBTmetrics);
+        hm = new HeatMap(NASBTmetrics, NASBTmaxDT, NASBTmaxCOUNT, NASBTlength);
         wname = "NAS BT";
     }
     else if (workload === 3) {
-        hm = new HeatMap(NASLU02metrics);
+        hm = new HeatMap(NASLU02metrics, NASLU02maxDT, NASLU02maxCOUNT, NASLU02length);
         wname = "NAS LU-02";
     }
     else if (workload === 4) {
-        hm = new HeatMap(NASSPmetrics);
+        hm = new HeatMap(NASSPmetrics, NASSPmaxDT, NASSPmaxCOUNT, NASSPlength);
         wname = "NAS SP"
     }
     else if (workload === 5) {
-        hm = new HeatMap(SPECpmniGhostmetrics);
+        hm = new HeatMap(SPECpmniGhostmetrics, SPECpmniGhostmaxDT, SPECpmniGhostmaxCOUNT, SPECpmniGhostlength);
         wname = "SPEC pmniGhost";
     }
     else if (workload === 6) {
-        hm = new HeatMap(SPECpseismicmetrics);
+        hm = new HeatMap(SPECpseismicmetrics, SPECpseismicmaxDT, SPECpseismicmaxCOUNT, SPECpseismiclength);
         wname = "SPEC pseismic";
     }
     else if (workload === 7) {
-        hm = new HeatMap(SPECpilbdcmetrics);
+        hm = new HeatMap(SPECpilbdcmetrics, SPECpilbdcmaxDT, SPECpilbdcmaxCOUNT, SPECpilbdclength);
         wname = "SPEC pilbdc"
     }
+    zb = new Button(x0 - 4*mdim, y0 - 65 * mdim, 54 * mdim, 54 * mdim, "Show\nzeroes", true, null);
 
     hm.display(x0, y0, dim - 140 * mdim);
 
@@ -112,16 +116,15 @@ function setup() {
     noStroke();
 
     textAlign(CENTER);
-    text("MAX\n" + threeD(hm.max3 / 1000) + " s", x0 - 38 * mdim, y0 + 14 * mdim);
-    text("MIN\n" + threeD(hm.min3 / 1000) + " s", x0 - 38 * mdim, y0 + dim - 2 * margin - 25 * mdim);
+    text("MAX\n" + threeD(hm.maxCOUNT), x0 - 38 * mdim, y0 + 14 * mdim);
+    text("MIN\n" + threeD(hm.minCOUNT), x0 - 38 * mdim, y0 + dim - 2 * margin - 25 * mdim);
 
-    text("MIN\n" + Math.round(threeD(hm.min4)), x0 + 17 * mdim, y0 + dim - 2 * margin + 34 * mdim);
-    text("MAX\n" + Math.round(threeD(hm.max4)), x0 + 843 * mdim, y0 + dim - 2 * margin + 34 * mdim);
+    text("MIN\n" + threeD(hm.minDT / 1000) + " s", x0 + 17 * mdim, y0 + dim - 2 * margin + 34 * mdim);
+    text("MAX\n" + threeD(hm.maxDT / 1000) + " s", x0 + 843 * mdim, y0 + dim - 2 * margin + 34 * mdim);
 
     textSize(35 * mdim);
     text(wname, x0 + dim / 2 - margin, y0 - 23 * mdim);
-
-    ham = new Button(x0 + dim - 2 * margin - 55 * mdim, y0 - 65 * mdim, 56 * mdim, 56 * mdim, "☰", true, null);
+    ham = new Button(x0 + dim - 2 * margin - 51 * mdim, y0 - 65 * mdim, 54 * mdim, 54 * mdim, "☰", true, null);
     btns = [];
     btns[0] = new Button(x0 + margin / 2, y0 + margin / 2, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "GAPBS BFS", false, 0);
     btns[1] = new Button(x0 + margin / 2, y0 + margin / 2 + (dim - 2 * margin) / 4, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "GAPBS TC", false, 1);
@@ -133,8 +136,9 @@ function setup() {
     btns[7] = new Button(x0 + margin / 2 + dim / 2 - margin, y0 + margin / 2 + 3 * (dim - 2 * margin) / 4, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "SPEC pilbdc", false, 7);
 
 } window.onresize = setup;
-
 function draw() {
+    zb.zDisplay();
+
     if(eham) {
         ham.hDisplay();
     } else {
@@ -142,7 +146,7 @@ function draw() {
     }
     if (ham.state) {
         noStroke();
-        fill(60, 9, 108, 20);
+        fill(60, 9, 108, 15);
         rect(x0, y0, dim - 2 * margin, dim - 2 * margin);
         for (let i = 0; i < 8; i++) {
             btns[i].wDisplay();
@@ -162,6 +166,7 @@ function mouseClicked() {
     } else {
         touched();
     }
+    zb.zClick();
 }
 
 function touched() {
@@ -186,6 +191,9 @@ function getColor(val) {
     let p = 0.05;
     let np = 1 - p;
 
+    let br = 0;
+    let bg = 0;
+    let bb = 0;
     let ir = 60;
     let ig = 9;
     let ib = 108;
@@ -194,41 +202,20 @@ function getColor(val) {
     let eb = 255;
 
     if (val < p) {
-        return color((val / p) * ir, (val / p) * ig, (val / p) * ib);
+        return color(br + (val / p) * (ir - br), bg + (val / p) * (ig - bg), bb + (val / p) * (ib - bb));
     }
     return color(ir + ((val - p) / np) * (er - ir), ig + ((val - p) / np) * (eg - ig), ib + ((val - p) / np) * (eb - ib));
 }
 
 class HeatMap {
-    constructor(metrics) {
-        this.size = Math.floor(Math.sqrt(metrics.length));
-        this.array = [];
-        for (let i = 0; i < this.size; i++) {
-            this.array[i] = []
-            for (let j = 0; j < this.size; j++)
-                this.array[i][j] = 0;
-        }
+    constructor(metrics, maxDT, maxCOUNT, length) {
+        this.array = metrics;
+        this.size = metrics.length;
 
-        this.min3 = metrics[0][2];
-        this.max3 = this.min3;
-        this.min4 = metrics[0][3];
-        this.max4 = this.min4;
-        for (let i = 1; i < metrics.length; i++) {
-            if (metrics[i][2] < this.min3) this.min3 = metrics[i][2];
-            if (metrics[i][2] > this.max3) this.max3 = metrics[i][2];
-            if (metrics[i][3] < this.min4) this.min4 = metrics[i][3];
-            if (metrics[i][3] > this.max4) this.max4 = metrics[i][3];
-        }
-        let range3 = this.max3 - this.min3;
-        let range4 = this.max4 - this.min4;
-        fill(255, 0, 0);
-        for (let i = 0; i < metrics.length; i++) {
-            let yi = Math.floor(((metrics[i][2] - this.min3) / range3) * this.size);
-            let xi = Math.floor(((metrics[i][3] - this.min4) / range4) * this.size);
-            while (xi >= this.size) xi--;
-            while (yi >= this.size) yi--;
-            this.array[yi][xi] += metrics[i][0];
-        }
+        this.minDT = 0;
+        this.maxDT = maxDT;
+        this.minCOUNT = 1;
+        this.maxCOUNT = maxCOUNT;
 
         this.arrayMax = this.array[0][0];
         this.arrayMin = this.arrayMax;
@@ -243,9 +230,20 @@ class HeatMap {
     display(x0, y0, dimension) {
         for (let i = 0; i < this.size; i++) {
             for (let j = 0; j < this.size; j++) {
+                stroke(getColor((this.array[i][j] - this.arrayMin) / (this.arrayMax - this.arrayMin)));
+                strokeWeight(1*mdim);
                 fill(getColor((this.array[i][j] - this.arrayMin) / (this.arrayMax - this.arrayMin)));
-                rect(x0 + j * (dimension / this.size), y0 + (this.size - i - 1) * (dimension / this.size), dimension / this.size, dimension / this.size);
+                if(showZ && this.array[i][j] === 0) {
+                    stroke(0);
+                    let wgt = 3*mdim
+                    strokeWeight(wgt);
+                    fill(100);
+                    rect(x0 + j * (dimension / this.size) + wgt, y0 + ((this.size - i) % this.size) * (dimension / this.size) + wgt, dimension / this.size - 2*wgt, dimension / this.size - 2*wgt, dimension / (2*this.size));
+                }
+                else
+                    rect(x0 + j * (dimension / this.size), y0 + ((this.size - i) % this.size) * (dimension / this.size), dimension / this.size, dimension / this.size);
             }
+
         }
     }
 
@@ -307,6 +305,30 @@ class Button {
         text(this.text, this.x + this.w / 2, this.y + this.h / 2);
         pop();
     }
+    zDisplay() {
+        push();
+        fill(0);
+        if (mouseX >= this.x && mouseX <= this.x + this.w) {
+            if (mouseY >= this.y && mouseY <= this.y + this.h) {
+                fill(60, 9, 108, 100);
+            }
+        }
+        stroke(136, 29, 237);
+        strokeWeight(3 * mdim);
+        rect(this.x, this.y, this.w, this.h, 5);
+        textAlign(CENTER, CENTER);
+        textSize(14 * mdim);
+        fill(255);
+        noStroke();
+        if (mouseX >= this.x && mouseX <= this.x + this.w) {
+            if (mouseY >= this.y && mouseY <= this.y + this.h) {
+                stroke(255);
+                strokeWeight(0.5);
+            }
+        }
+        text(this.text, this.x + this.w / 2, this.y + this.h / 2);
+        pop();
+    }
     click() {
         if (this.shown) {
             if (mouseX >= this.x && mouseX <= this.x + this.w) {
@@ -321,6 +343,16 @@ class Button {
             if (mouseX >= this.x && mouseX <= this.x + this.w) {
                 if (mouseY >= this.y && mouseY <= this.y + this.h) {
                     workload = this.wld;
+                }
+            }
+        }
+    }
+    zClick() {
+        if (this.shown) {
+            if (mouseX >= this.x && mouseX <= this.x + this.w) {
+                if (mouseY >= this.y && mouseY <= this.y + this.h) {
+                    showZ = !showZ;
+                    setup();
                 }
             }
         }

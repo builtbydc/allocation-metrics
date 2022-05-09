@@ -34,96 +34,85 @@ minTime = L[0][0]
 for lst in L:
     for i in range(len(lst)):
         lst[i] -= minTime
-
-maxTime = L[len(L) - 1][0]
-
-lenB = 1600
-ivl = math.ceil(maxTime / lenB)
-
-# initialize B
-B = []
-for i in range(lenB):
-    B.append([])
-
-# fill B
+        
+maxTime = 0
 for lst in L:
-    index = int(lst[0] / ivl)
-    if index >= len(B):  # should not happen
-        B.append([])
-    B[int(lst[0] / ivl)].append(lst)
+    if len(lst) > 1:
+        if lst[len(lst) - 1] > maxTime:
+            maxTime = lst[len(lst) - 1]
+    elif len(lst) == 1:
+        if lst[0] > maxTime:
+            maxTime = lst[0]
+        
 
-# initialize ys
-y1 = []
-y2 = []
-y3 = []
-y4 = []
-for i in range(len(B)):
-    y1.append(0)
-    y2.append(0)
-    y3.append(0)
-    y4.append(0)
+        
+dt = []
+dt2 = []
+count = []
+count2 = []
+for lst in L:
+    if(len(lst) > 1):
+        dt.append(lst[1] - lst[0])
+        dt2.append(lst[1] - lst[0])
+        count.append(len(lst) - 1)
+        count2.append(len(lst) - 1)
+        
+dt2.sort()
+count2.sort()
+num2 = len(dt2)
+trim = 0.01
+trimN = int(trim*num2)
+maxDT = dt2[num2 - trimN] + 1
+maxCOUNT = count2[num2 - trimN] + 1
 
-    lst = B[i]
-    y1[i] = len(lst)  # number of allocations
+toRemove = 0
+print("prob1")
+for i in range(num2):
+    if (dt[i] > maxDT) | (count[i] > maxCOUNT):
+        dt[i] = -1
+        count[i] = -1
+        toRemove += 1
 
-    if len(lst) > 0:
-        mult = 0
-        for page in lst:
-            if len(page) > 1:
-                mult += 1
-        y2[i] = mult / len(lst)  # percentage of re-accessed pages
+print("prob2")
+    
+print("prob3")
+maxDT = max(dt) + 1
+maxCOUNT = max(count) + 1
 
-        total = 0
-        count = 0
-        for page in lst:
-            if len(page) > 1:
-                count += 1
-                total += (page[1] - page[0])
-        if count > 0:
-            y3[i] = total / count  # avg. time until re-access
+grid = []
+res = maxCOUNT
+for i in range(res):
+    grid.append([])
+    for j in range(res):
+        grid[i].append(0)
 
-        total = 0
-        count = 0
-        for page in lst:
-            if len(page) > 1:
-                count += 1
-                total += (len(page) - 1)
-        if count > 0:
-            y4[i] = total / count # avg. number of re-accesses
+unitDT = maxDT / (res + 0.0)
+unitCOUNT = maxCOUNT / (res + 0.0)
 
-# fig, ax = plt.subplots(2, 2, figsize=[14, 7])
+for i in range(len(dt)):
+    if (dt[i] != -1) & (count[i] != -1):
+        x = int(dt[i] / unitDT)
+        y = int(count[i] / unitCOUNT)
+        grid[y][x] += 1
 
-# fig.suptitle(sys.argv[3])
-
-# ax[0, 0].plot(y1, linewidth=1)
-# ax[0, 0].set_ylabel("Number of allocations in time window")
-
-# ax[1, 0].plot(y2, linewidth=1)
-# ax[1, 0].set_ylabel("Percentage of pages re-accessed\n[pages allocated in this window]")
-# ax[1, 0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-
-y3[len(y3)-1] = 0  # bug fix
-# ax[0, 1].plot(y3, linewidth=1)
-# ax[0, 1].set_ylabel("Average time until first re-access (ms)\n[re-accessed pages only]")
-
-# ax[1, 1].plot(y4, linewidth=1)
-# ax[1, 1].set_ylabel("Average number of re-accesses\n[re-accessed pages only]")
-
-# ax[0, 0].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
-# ax[0, 1].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
-# ax[1, 0].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
-# ax[1, 1].set_xlabel("Time Window IDs [unit: workload duration / " + str(lenB) + "]")
-
-# plt.tight_layout(pad=2)
-# plt.savefig(sys.argv[2])
 
 metrics = []
-for i in range(len(B)-1):
-    metrics.append("\t[" + str(y1[i]) + ", " + str(y2[i]) + 
-                   ", " + str(y3[i]) + ", " + str(y4[i]) + "],\n")
-metrics.append("\t[" + str(y1[len(B)-1]) + ", " + str(y2[len(B)-1]) + 
-                   ", " + str(y3[len(B)-1]) + ", " + str(y4[len(B)-1]) + "]\n")
-
+# for i in range(len(B)-1):
+#     metrics.append("\t[" + str(y1[i]) + ", " + str(y2[i]) + 
+#                    ", " + str(y3[i]) + ", " + str(y4[i]) + "],\n")
+# metrics.append("\t[" + str(y1[len(B)-1]) + ", " + str(y2[len(B)-1]) + 
+#                    ", " + str(y3[len(B)-1]) + ", " + str(y4[len(B)-1]) + "]\n")
+for lineIndex in range(len(grid)):
+    line = grid[lineIndex]
+    outLine = "\t["
+    for i in range(len(line) - 1):
+        outLine += str(line[i]) + ", "
+    outLine += str(line[len(line) - 1]) + "]"
+    if(lineIndex < len(grid) - 1):
+        outLine += ", "
+    outLine += "\n"
+    metrics.append(outLine)
+        
 filename = sys.argv[3] + "-metrics.js"
 try:
     os.remove(filename)
@@ -131,7 +120,10 @@ except:
     except_temp = 0
     
 mfile = open(filename, "w")
+mfile.write("let " + sys.argv[3] + "length = " + str(maxTime) + ";\n")
+mfile.write("let " + sys.argv[3] + "maxDT = " + str(maxDT) + ";\n")
+mfile.write("let " + sys.argv[3] + "maxCOUNT = " + str(maxCOUNT) + ";\n")
 mfile.write("const " + sys.argv[3] + "metrics = [\n")
 mfile.writelines(metrics)
-mfile.write("]")
+mfile.write("];")
 mfile.close()
