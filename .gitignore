@@ -1,2 +1,5 @@
 .venv
 access_dict
+oldjs
+js3
+.DS_Store

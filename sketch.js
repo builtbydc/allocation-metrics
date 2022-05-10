@@ -4,178 +4,62 @@ function preload() {
 }
 
 let workload = 0;
-let ham;
-let btns;
-let zb;
-let showZ = false;
+let heatMap;
+let workloadName;
+
+let menuButton;
+let selectButtons;
+let zeroButton;
+let showZeroes = false;
 
 
-let mdim;
+let unit;
 
-let eham;
+let landscape;
 
-let dim;
+let dimension;
 let margin;
+let sideLength;
 let x0;
 let y0;
 
-function setup() {
-    createCanvas(windowWidth, windowHeight);
-    background(0);
-    textAlign(LEFT);
-
-    if (windowWidth > windowHeight) {
-        eham = true;
-        dim = windowHeight;
-        mdim = dim / 1000;
-        margin = 70 * mdim;
-        x0 = (windowWidth - dim) / 2 + margin;
-        y0 = margin;
-    } else {
-        eham = false;
-        dim = windowWidth;
-        mdim = dim / 1000;
-        margin = 70 * mdim;
-        x0 = margin;
-        y0 = (windowHeight - dim) / 2 + margin;
-    }
-
-    noFill();
-    stroke(255);
-    strokeWeight(4*mdim);
-    rect(x0 - 4*mdim, y0-4*mdim, dim - 2 * margin + 8*mdim, dim - 2 * margin + 8*mdim);
-
-    strokeWeight(1);
-    let gradientTopEdge = y0 + 50 * mdim;
-    let gradientHeight = dim - 2 * margin - 102 * mdim;
-    for (let i = gradientTopEdge; i < gradientTopEdge + gradientHeight; i++) {
-        let val = i - gradientTopEdge;
-        stroke(getColor(1 - (val / gradientHeight)));
-        line(x0 + dim - 2 * margin + 17 * mdim, i, x0 + dim - 2 * margin + 57 * mdim, i);
-    }
-
-    noStroke();
-    fill(255);
-    textSize(28 * mdim);
-    textFont(font);
-    textSize(14 * mdim)
-    textAlign(CENTER);
-    text("more\npages", x0 + dim - 2 * margin + 38 * mdim, y0 + 14 * mdim);
-    text("less\npages", x0 + dim - 2 * margin + 38 * mdim, y0 + dim - 2 * margin - 25 * mdim);
-
-    textAlign(LEFT);
-    textSize(28 * mdim);
-    push();
-    translate(x0 - 28 * mdim, y0 + 600 * mdim);
-    rotate(radians(-90));
-    text("number of accesses ⟶", 0, 0);
-    pop();
-    
-    text("time between allocation and first access ⟶", x0 + 120 * mdim, y0 + dim - 2 * margin + 45 * mdim);
-
-    let hm;
-    let wname;
-    if (workload === 0) {
-        hm = new HeatMap(BFSmetrics, BFSmaxDT, BFSmaxCOUNT, BFSlength);
-        wname = "GAPBS BFS";
-    }
-    else if (workload === 1) {
-        hm = new HeatMap(TCmetrics, TCmaxDT, TCmaxCOUNT, TClength);
-        wname = "GAPBS TC";
-    }
-    else if (workload === 2) {
-        hm = new HeatMap(NASBTmetrics, NASBTmaxDT, NASBTmaxCOUNT, NASBTlength);
-        wname = "NAS BT";
-    }
-    else if (workload === 3) {
-        hm = new HeatMap(NASLU02metrics, NASLU02maxDT, NASLU02maxCOUNT, NASLU02length);
-        wname = "NAS LU-02";
-    }
-    else if (workload === 4) {
-        hm = new HeatMap(NASSPmetrics, NASSPmaxDT, NASSPmaxCOUNT, NASSPlength);
-        wname = "NAS SP"
-    }
-    else if (workload === 5) {
-        hm = new HeatMap(SPECpmniGhostmetrics, SPECpmniGhostmaxDT, SPECpmniGhostmaxCOUNT, SPECpmniGhostlength);
-        wname = "SPEC pmniGhost";
-    }
-    else if (workload === 6) {
-        hm = new HeatMap(SPECpseismicmetrics, SPECpseismicmaxDT, SPECpseismicmaxCOUNT, SPECpseismiclength);
-        wname = "SPEC pseismic";
-    }
-    else if (workload === 7) {
-        hm = new HeatMap(SPECpilbdcmetrics, SPECpilbdcmaxDT, SPECpilbdcmaxCOUNT, SPECpilbdclength);
-        wname = "SPEC pilbdc"
-    }
-    zb = new Button(x0 - 4*mdim, y0 - 65 * mdim, 54 * mdim, 54 * mdim, "Show\nzeroes", true, null);
-
-    hm.display(x0, y0, dim - 140 * mdim);
-
-    textSize(14 * mdim);
-    fill(255);
-    noStroke();
-
-    textAlign(CENTER);
-    text("MAX\n" + threeD(hm.maxCOUNT), x0 - 38 * mdim, y0 + 14 * mdim);
-    text("MIN\n" + threeD(hm.minCOUNT), x0 - 38 * mdim, y0 + dim - 2 * margin - 25 * mdim);
-
-    text("MIN\n" + threeD(hm.minDT / 1000) + " s", x0 + 17 * mdim, y0 + dim - 2 * margin + 34 * mdim);
-    text("MAX\n" + threeD(hm.maxDT / 1000) + " s", x0 + 843 * mdim, y0 + dim - 2 * margin + 34 * mdim);
-
-    textSize(35 * mdim);
-    text(wname, x0 + dim / 2 - margin, y0 - 23 * mdim);
-    ham = new Button(x0 + dim - 2 * margin - 51 * mdim, y0 - 65 * mdim, 54 * mdim, 54 * mdim, "☰", true, null);
-    btns = [];
-    btns[0] = new Button(x0 + margin / 2, y0 + margin / 2, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "GAPBS BFS", false, 0);
-    btns[1] = new Button(x0 + margin / 2, y0 + margin / 2 + (dim - 2 * margin) / 4, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "GAPBS TC", false, 1);
-    btns[2] = new Button(x0 + margin / 2, y0 + margin / 2 + (dim - 2 * margin) / 2, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "NAS BT", false, 2);
-    btns[3] = new Button(x0 + margin / 2, y0 + margin / 2 + 3 * (dim - 2 * margin) / 4, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "NAS LU-02", false, 3);
-    btns[4] = new Button(x0 + margin / 2 + dim / 2 - margin, y0 + margin / 2, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "NAS SP", false, 4);
-    btns[5] = new Button(x0 + margin / 2 + dim / 2 - margin, y0 + margin / 2 + (dim - 2 * margin) / 4, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "SPEC pmniGhost", false, 5);
-    btns[6] = new Button(x0 + margin / 2 + dim / 2 - margin, y0 + margin / 2 + (dim - 2 * margin) / 2, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "SPEC pseismic", false, 6);
-    btns[7] = new Button(x0 + margin / 2 + dim / 2 - margin, y0 + margin / 2 + 3 * (dim - 2 * margin) / 4, dim / 2 - margin - margin, (dim - 2 * margin) / 4 - margin, "SPEC pilbdc", false, 7);
-
-} window.onresize = setup;
-function draw() {
-    zb.zDisplay();
-
-    if(eham) {
-        ham.hDisplay();
-    } else {
-        ham.shown = false;
-    }
-    if (ham.state) {
-        noStroke();
-        fill(60, 9, 108, 15);
-        rect(x0, y0, dim - 2 * margin, dim - 2 * margin);
-        for (let i = 0; i < 8; i++) {
-            btns[i].wDisplay();
-            btns[i].shown = true;
-        }
-    }
+function u(val) {
+    return val * unit;
 }
 
-function mouseClicked() {
-    if(eham) {
-        for (let i = 0; i < 8; i++) {
-            btns[i].wClick();
-            btns[i].shown = false;
-        }
-        if (ham.state) setup();
-        ham.click();
-    } else {
-        touched();
-    }
-    zb.zClick();
+function x(lr, val) {
+    if (lr === "l") return x0 + u(val);
+    if (lr === "r") return x0 + sideLength + u(val);
 }
 
-function touched() {
-    workload++;
-    workload %= 8;
-    setup();
-} window.ontouchend = touched;
+function y(tb, val) {
+    if (tb === "t") return y0 + u(val);
+    if (tb === "b") return y0 + sideLength + u(val);
+}
 
-function threeD(val) {
+function getColor(val) {
+    let p = 0.05;
+    let np = 1 - p;
+
+    let r0 = 0;
+    let g0 = 0;
+    let b0 = 0;
+
+    let r1 = 60;
+    let g1 = 9;
+    let b1 = 108;
+
+    let r2 = 255;
+    let g2 = 255;
+    let b2 = 255;
+
+    if (val < p) {
+        return color(r0 + (val / p) * (r1 - r0), g0 + (val / p) * (g1 - g0), b0 + (val / p) * (b1 - b0));
+    }
+    return color(r1 + ((val - p) / np) * (r2 - r1), g1 + ((val - p) / np) * (g2 - g1), b1 + ((val - p) / np) * (b2 - b1));
+}
+
+function dig3(val) {
     if (val >= 1000) return Math.round(val);
     if (val < 0.001) return 0;
     let c = 0;
@@ -187,25 +71,204 @@ function threeD(val) {
     return val / Math.pow(10, c);
 }
 
-function getColor(val) {
-    let p = 0.05;
-    let np = 1 - p;
-
-    let br = 0;
-    let bg = 0;
-    let bb = 0;
-    let ir = 60;
-    let ig = 9;
-    let ib = 108;
-    let er = 255;
-    let eg = 255;
-    let eb = 255;
-
-    if (val < p) {
-        return color(br + (val / p) * (ir - br), bg + (val / p) * (ig - bg), bb + (val / p) * (ib - bb));
+function setConstants() {
+    if (windowWidth > windowHeight) {
+        landscape = true;
+        dimension = windowHeight;
+        unit = dimension / 1000;
+        margin = u(70);
+        x0 = (windowWidth - dimension) / 2 + margin;
+        y0 = margin;
+    } else {
+        landscape = false;
+        dimension = windowWidth;
+        unit = dimension / 1000;
+        margin = u(70);
+        x0 = margin;
+        y0 = (windowHeight - dimension) / 2 + margin;
     }
-    return color(ir + ((val - p) / np) * (er - ir), ig + ((val - p) / np) * (eg - ig), ib + ((val - p) / np) * (eb - ib));
+    sideLength = dimension - 2 * margin;
 }
+
+function buildAxes() {
+    push();
+
+    noFill();
+    strokeWeight(u(4));
+    stroke(255);
+    rect(x("l", -4), y("t", -4), sideLength + u(8), sideLength + u(8));
+
+    textAlign(LEFT);
+    textSize(u(28));
+    noStroke();
+    fill(255);
+
+    push();
+    translate(x("l", -28), y("t", 600));
+    rotate(radians(-90));
+    text("number of accesses ⟶", 0, 0);
+    pop();
+
+    text("time between allocation and first access ⟶", x("l", 120), y("b", 45));
+
+    textSize(u(14));
+    fill(255);
+    noStroke();
+
+    textAlign(CENTER);
+    text("MAX\n" + dig3(heatMap.maxCOUNT), x("l", -38), y("t", 14));
+    text("MIN\n" + dig3(heatMap.minCOUNT), x("l", -38), y("b", -25));
+
+    text("MIN\n" + dig3(heatMap.minDT / 1000) + " s", x("l", 17), y("b", 34));
+    text("MAX\n" + dig3(heatMap.maxDT / 1000) + " s", x("l", 843), y("b", 34));
+
+    textSize(u(35));
+    text(workloadName, x0 + sideLength / 2, y("t", -23));
+
+    pop();
+}
+
+function buildGradient() {
+    push();
+
+    strokeWeight(1);
+    let gradientTopEdge = y("t", 50);
+    let gradientHeight = sideLength - u(102);
+    for (let i = gradientTopEdge; i < gradientTopEdge + gradientHeight; i++) {
+        let val = i - gradientTopEdge;
+        stroke(getColor(1 - (val / gradientHeight)));
+        line(x("r", 17), i, x("r", 57), i);
+    }
+
+    noStroke();
+    fill(255);
+    textSize(u(14));
+    textAlign(CENTER);
+    text("more\npages", x("r", 38), y("t", 14));
+    text("less\npages", x("r", 38), y("b", -25));
+
+    pop();
+}
+
+function createButtons() {
+    zeroButton = new Button(x("l", -4), y("t", -65), u(54), u(54), "Show\nzeroes", u(14), true, null);
+    zeroButton.action = (function () {
+        showZeroes = !showZeroes;
+        setup();
+    });
+
+    menuButton = new Button(x("r", -51), y("t", -65), u(54), u(54), "☰", u(35), true, null, true);
+    menuButton.action = (function () {
+        menuButton.state = !menuButton.state;
+    });
+
+    let sbx0 = x("l", 35);
+    let sbx1 = x("l", 35) + sideLength / 2;
+    let sby0 = y("t", 35);
+    let sby1 = y("t", 35) + sideLength / 4;
+    let sby2 = y("t", 35) + sideLength / 2;
+    let sby3 = y("t", 35) + 3 * sideLength / 4;
+    let sbw = sideLength / 2 - margin;
+    let sbh = sideLength / 4 - margin;
+    selectButtons = [];
+    selectButtons[0] = new Button(sbx0, sby0, sbw, sbh, "GAPBS BFS", u(28), false, 0);
+    selectButtons[1] = new Button(sbx0, sby1, sbw, sbh, "GAPBS TC", u(28), false, 1);
+    selectButtons[2] = new Button(sbx0, sby2, sbw, sbh, "NAS BT", u(28), false, 2);
+    selectButtons[3] = new Button(sbx0, sby3, sbw, sbh, "NAS LU-02", u(28), false, 3);
+    selectButtons[4] = new Button(sbx1, sby0, sbw, sbh, "NAS SP", u(28), false, 4);
+    selectButtons[5] = new Button(sbx1, sby1, sbw, sbh, "SPEC pmniGhost", u(28), false, 5);
+    selectButtons[6] = new Button(sbx1, sby2, sbw, sbh, "SPEC pseismic", u(28), false, 6);
+    selectButtons[7] = new Button(sbx1, sby3, sbw, sbh, "SPEC pilbdc", u(28), false, 7);
+    for (let i = 0; i < 8; i++) {
+        selectButtons[i].action = (function () {
+            workload = selectButtons[i].wld;
+        });
+    }
+}
+
+function createHeatMap() {
+    if (workload === 0) {
+        heatMap = new HeatMap(BFSmetrics, BFSmaxDT, BFSmaxCOUNT, BFSlength);
+        workloadName = "GAPBS BFS";
+    } else if (workload === 1) {
+        heatMap = new HeatMap(TCmetrics, TCmaxDT, TCmaxCOUNT, TClength);
+        workloadName = "GAPBS TC";
+    } else if (workload === 2) {
+        heatMap = new HeatMap(NASBTmetrics, NASBTmaxDT, NASBTmaxCOUNT, NASBTlength);
+        workloadName = "NAS BT";
+    } else if (workload === 3) {
+        heatMap = new HeatMap(NASLU02metrics, NASLU02maxDT, NASLU02maxCOUNT, NASLU02length);
+        workloadName = "NAS LU-02";
+    } else if (workload === 4) {
+        heatMap = new HeatMap(NASSPmetrics, NASSPmaxDT, NASSPmaxCOUNT, NASSPlength);
+        workloadName = "NAS SP"
+    } else if (workload === 5) {
+        heatMap = new HeatMap(SPECpmniGhostmetrics, SPECpmniGhostmaxDT, SPECpmniGhostmaxCOUNT, SPECpmniGhostlength);
+        workloadName = "SPEC pmniGhost";
+    } else if (workload === 6) {
+        heatMap = new HeatMap(SPECpseismicmetrics, SPECpseismicmaxDT, SPECpseismicmaxCOUNT, SPECpseismiclength);
+        workloadName = "SPEC pseismic";
+    } else if (workload === 7) {
+        heatMap = new HeatMap(SPECpilbdcmetrics, SPECpilbdcmaxDT, SPECpilbdcmaxCOUNT, SPECpilbdclength);
+        workloadName = "SPEC pilbdc"
+    }
+}
+
+function setup() {
+    createCanvas(windowWidth, windowHeight);
+    background(0);
+    textFont(font);
+
+    setConstants();
+
+    createButtons();
+    createHeatMap();
+
+    buildAxes();
+    buildGradient();
+
+    heatMap.display(x0, y0, dimension - u(140));
+
+} window.onresize = setup;
+
+function draw() {
+    zeroButton.display();
+
+    if (landscape) {
+        menuButton.display();
+    } else {
+        menuButton.shown = false;
+    }
+    if (menuButton.state) {
+        noStroke();
+        fill(60, 9, 108, 15);
+        rect(x0, y0, dimension - 2 * margin, dimension - 2 * margin);
+        for (let i = 0; i < 8; i++) {
+            selectButtons[i].display();
+            selectButtons[i].shown = true;
+        }
+    }
+}
+
+function mouseClicked() {
+    if (landscape) {
+        for (let i = 0; i < 8; i++) {
+            selectButtons[i].click();
+            selectButtons[i].shown = false;
+        }
+        if (menuButton.state) setup();
+        menuButton.click();
+    } else {
+        touched();
+    }
+    zeroButton.click();
+}
+
+function touched() {
+    workload++;
+    workload %= 8;
+    setup();
+} window.ontouchend = touched;
 
 class HeatMap {
     constructor(metrics, maxDT, maxCOUNT, length) {
@@ -214,7 +277,7 @@ class HeatMap {
 
         this.minDT = 0;
         this.maxDT = maxDT;
-        this.minCOUNT = 1;
+        this.minCOUNT = 0;
         this.maxCOUNT = maxCOUNT;
 
         this.arrayMax = this.array[0][0];
@@ -228,20 +291,25 @@ class HeatMap {
     }
 
     display(x0, y0, dimension) {
+        let range = this.arrayMax - this.arrayMin;
+        let d = dimension / this.size;
         for (let i = 0; i < this.size; i++) {
             for (let j = 0; j < this.size; j++) {
-                stroke(getColor((this.array[i][j] - this.arrayMin) / (this.arrayMax - this.arrayMin)));
-                strokeWeight(1*mdim);
-                fill(getColor((this.array[i][j] - this.arrayMin) / (this.arrayMax - this.arrayMin)));
-                if(showZ && this.array[i][j] === 0) {
+                let rowCF = this.size - i - 1;
+                if (showZeroes && this.array[i][j] === 0) {
                     stroke(0);
-                    let wgt = 3*mdim
+                    let wgt = u(3);
                     strokeWeight(wgt);
                     fill(100);
-                    rect(x0 + j * (dimension / this.size) + wgt, y0 + ((this.size - i) % this.size) * (dimension / this.size) + wgt, dimension / this.size - 2*wgt, dimension / this.size - 2*wgt, dimension / (2*this.size));
+                    rect(x0 + j * d + wgt, y0 + rowCF * d + wgt, d - 2 * wgt, d - 2 * wgt, d / 2);
                 }
-                else
-                    rect(x0 + j * (dimension / this.size), y0 + ((this.size - i) % this.size) * (dimension / this.size), dimension / this.size, dimension / this.size);
+                else {
+                    let val = this.array[i][j] - this.arrayMin;
+                    strokeWeight(u(1));
+                    stroke(getColor(val / range));
+                    fill(getColor(val / range));
+                    rect(x0 + j * d, y0 + rowCF * d, d, d);
+                }
             }
 
         }
@@ -250,38 +318,20 @@ class HeatMap {
 }
 
 class Button {
-    constructor(x, y, w, h, text, shown, wld) {
+    constructor(x, y, w, h, text, fontSize, shown, wld, center_opt) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.text = text;
+        this.fontSize = fontSize;
         this.shown = shown;
         this.state = false;
         this.wld = wld;
+        this.center_opt = center_opt;
     }
-    hDisplay() {
-        fill(0);
-        if (mouseX >= this.x && mouseX <= this.x + this.w) {
-            if (mouseY >= this.y && mouseY <= this.y + this.h) {
-                fill(60, 9, 108, 20);
-            }
-        }
-        stroke(136, 29, 237);
-        strokeWeight(3 * mdim);
-        rect(this.x, this.y, this.w, this.h, 5);
-        textAlign(CENTER);
-        fill(255);
-        noStroke();
-        if (mouseX >= this.x && mouseX <= this.x + this.w) {
-            if (mouseY >= this.y && mouseY <= this.y + this.h) {
-                stroke(255);
-                strokeWeight(0.5);
-            }
-        }
-        text(this.text, this.x + this.w / 2, this.y + 3 * this.h / 4);
-    }
-    wDisplay() {
+
+    display() {
         push();
         fill(0);
         if (mouseX >= this.x && mouseX <= this.x + this.w) {
@@ -290,10 +340,10 @@ class Button {
             }
         }
         stroke(136, 29, 237);
-        strokeWeight(3 * mdim);
+        strokeWeight(u(3));
         rect(this.x, this.y, this.w, this.h, 5);
         textAlign(CENTER, CENTER);
-        textSize(28 * mdim);
+        textSize(this.fontSize);
         fill(255);
         noStroke();
         if (mouseX >= this.x && mouseX <= this.x + this.w) {
@@ -302,59 +352,21 @@ class Button {
                 strokeWeight(0.5);
             }
         }
-        text(this.text, this.x + this.w / 2, this.y + this.h / 2);
+        if (this.center_opt)
+            text(this.text, this.x + this.w / 2, this.y + 4 * this.h / 9);
+        else
+            text(this.text, this.x + this.w / 2, this.y + this.h / 2);
         pop();
     }
-    zDisplay() {
-        push();
-        fill(0);
-        if (mouseX >= this.x && mouseX <= this.x + this.w) {
-            if (mouseY >= this.y && mouseY <= this.y + this.h) {
-                fill(60, 9, 108, 100);
-            }
-        }
-        stroke(136, 29, 237);
-        strokeWeight(3 * mdim);
-        rect(this.x, this.y, this.w, this.h, 5);
-        textAlign(CENTER, CENTER);
-        textSize(14 * mdim);
-        fill(255);
-        noStroke();
-        if (mouseX >= this.x && mouseX <= this.x + this.w) {
-            if (mouseY >= this.y && mouseY <= this.y + this.h) {
-                stroke(255);
-                strokeWeight(0.5);
-            }
-        }
-        text(this.text, this.x + this.w / 2, this.y + this.h / 2);
-        pop();
-    }
+
     click() {
         if (this.shown) {
             if (mouseX >= this.x && mouseX <= this.x + this.w) {
                 if (mouseY >= this.y && mouseY <= this.y + this.h) {
-                    this.state = !this.state;
+                    this.action();
                 }
             }
         }
     }
-    wClick() {
-        if (this.shown) {
-            if (mouseX >= this.x && mouseX <= this.x + this.w) {
-                if (mouseY >= this.y && mouseY <= this.y + this.h) {
-                    workload = this.wld;
-                }
-            }
-        }
-    }
-    zClick() {
-        if (this.shown) {
-            if (mouseX >= this.x && mouseX <= this.x + this.w) {
-                if (mouseY >= this.y && mouseY <= this.y + this.h) {
-                    showZ = !showZ;
-                    setup();
-                }
-            }
-        }
-    }
+    action() { }
 }
