@@ -3,26 +3,6 @@ function preload() {
     font = loadFont("./font/DejaVuSans.ttf");
 }
 
-let workload = 0;
-let heatMap;
-let workloadName;
-
-let menuButton;
-let selectButtons;
-let zeroButton;
-let showZeroes = false;
-
-
-let unit;
-
-let landscape;
-
-let dimension;
-let margin;
-let sideLength;
-let x0;
-let y0;
-
 function u(val) {
     return val * unit;
 }
@@ -70,6 +50,24 @@ function dig3(val) {
     val = Math.round(val);
     return val / Math.pow(10, c);
 }
+
+let heatMap;
+let workload = 0;
+let workloadName;
+
+let zeroButton;
+let showZeroes = false;
+let menuButton;
+let showMenu = false;
+let selectButtons;
+
+let landscape;
+let dimension;
+let unit;
+let margin;
+let x0;
+let y0;
+let sideLength;
 
 function setConstants() {
     if (windowWidth > windowHeight) {
@@ -154,12 +152,14 @@ function createButtons() {
     zeroButton = new Button(x("l", -4), y("t", -65), u(54), u(54), "Show\nzeroes", u(14), true, null);
     zeroButton.action = (function () {
         showZeroes = !showZeroes;
-        setup();
+        return true;
     });
 
     menuButton = new Button(x("r", -51), y("t", -65), u(54), u(54), "☰", u(35), true, null, true);
     menuButton.action = (function () {
-        menuButton.state = !menuButton.state;
+        showMenu = !showMenu;
+        setup();
+        return true;
     });
 
     let sbx0 = x("l", 35);
@@ -182,6 +182,7 @@ function createButtons() {
     for (let i = 0; i < 8; i++) {
         selectButtons[i].action = (function () {
             workload = selectButtons[i].wld;
+            return true;
         });
     }
 }
@@ -233,16 +234,11 @@ function setup() {
 
 function draw() {
     zeroButton.display();
-
-    if (landscape) {
-        menuButton.display();
-    } else {
-        menuButton.shown = false;
-    }
-    if (menuButton.state) {
+    menuButton.display();
+    if (showMenu) {
         noStroke();
         fill(60, 9, 108, 15);
-        rect(x0, y0, dimension - 2 * margin, dimension - 2 * margin);
+        rect(x0, y0, sideLength, sideLength);
         for (let i = 0; i < 8; i++) {
             selectButtons[i].display();
             selectButtons[i].shown = true;
@@ -251,24 +247,23 @@ function draw() {
 }
 
 function mouseClicked() {
-    if (landscape) {
-        for (let i = 0; i < 8; i++) {
-            selectButtons[i].click();
-            selectButtons[i].shown = false;
-        }
-        if (menuButton.state) setup();
-        menuButton.click();
-    } else {
-        touched();
-    }
     zeroButton.click();
-}
 
-function touched() {
-    workload++;
-    workload %= 8;
-    setup();
-} window.ontouchend = touched;
+    let menuClick = menuButton.click();
+    let selectClick = false;
+    for (let i = 0; i < 8; i++) {
+        selectClick = selectClick || selectButtons[i].click();
+        selectButtons[i].shown = false;
+    }
+    let mapHover = ((mouseX >= x0 && mouseX <= x0 + sideLength) && 
+                    (mouseY >= y0 && mouseY <= y0 + sideLength));
+
+    if(selectClick || (!menuClick && !mapHover)) {
+        showMenu = false;
+        setup();
+    }
+
+}
 
 class HeatMap {
     constructor(metrics, maxDT, maxCOUNT, length) {
@@ -298,7 +293,7 @@ class HeatMap {
                 let rowCF = this.size - i - 1;
                 if (showZeroes && this.array[i][j] === 0) {
                     stroke(0);
-                    let wgt = u(3);
+                    let wgt = d / 6;
                     strokeWeight(wgt);
                     fill(100);
                     rect(x0 + j * d + wgt, y0 + rowCF * d + wgt, d - 2 * wgt, d - 2 * wgt, d / 2);
@@ -326,7 +321,6 @@ class Button {
         this.text = text;
         this.fontSize = fontSize;
         this.shown = shown;
-        this.state = false;
         this.wld = wld;
         this.center_opt = center_opt;
     }
@@ -363,7 +357,8 @@ class Button {
         if (this.shown) {
             if (mouseX >= this.x && mouseX <= this.x + this.w) {
                 if (mouseY >= this.y && mouseY <= this.y + this.h) {
-                    this.action();
+                    if(this.action()) return true;
+                    return false;
                 }
             }
         }
