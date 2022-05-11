@@ -1,9 +1,6 @@
-import math
 import sys
 import os
 import json
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
 
 # open file
 with open(sys.argv[1]) as f:

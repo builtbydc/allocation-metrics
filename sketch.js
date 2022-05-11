@@ -55,6 +55,10 @@ let heatMap;
 let workload = 0;
 let workloadName;
 
+let infoButton;
+let showInfo = false;
+let areaButton;
+let showAreas = false;
 let zeroButton;
 let showZeroes = false;
 let menuButton;
@@ -95,6 +99,26 @@ function buildAxes() {
     strokeWeight(u(4));
     stroke(255);
     rect(x("l", -4), y("t", -4), sideLength + u(8), sideLength + u(8));
+
+    stroke(255);
+    strokeWeight(1);
+    let counter = heatMap.size - 1;
+    for(let yt = y0 + sideLength / heatMap.size; yt < y0 + sideLength - sideLength / heatMap.size; yt += sideLength / heatMap.size) {
+        if(counter % 5 === 0)
+            line(x0 - u(17), yt, x0 - u(5), yt);
+        else
+            line(x0 - u(11), yt, x0 - u(5), yt);
+        counter--;
+    }
+
+    counter = 1;
+    for(let xt = x0 + sideLength / heatMap.size; xt < x0 + sideLength; xt += sideLength / heatMap.size) {
+        if(counter % 5 === 0) 
+            line(xt, y0 + sideLength + u(17), xt, y0 + sideLength + u(5));
+        else
+            line(xt, y0 + sideLength + u(11), xt, y0 + sideLength + u(5));
+        counter++;
+    }
 
     textAlign(LEFT);
     textSize(u(28));
@@ -148,7 +172,77 @@ function buildGradient() {
     pop();
 }
 
+function buildAreas() {
+    push();
+
+    let areaWeight = u(10);
+    let DAx = x0 + areaWeight / 2;
+    let DPx = DAx;
+    //let PPx = x0 + (10000 / heatMap.maxDT) * sideLength + areaWeight / 2;
+    let DAy = y0 + areaWeight / 2;
+    let DPy = DAy + max(.6, (heatMap.maxCOUNT - 10)/heatMap.maxCOUNT) * sideLength + areaWeight / 2;
+    //let PPy = DAy;
+
+    let DAw = min(.2, 10000 / heatMap.maxDT) * sideLength;
+    let DPw = min(.4, 21000 / heatMap.maxDT) * sideLength;
+    //let PPw = sideLength - DAw - 2*areaWeight;
+
+    let DAh = DPy - y0 - 1.5*areaWeight;
+    let DPh = sideLength - DAh - 2*areaWeight;
+    //let PPh = sideLength - areaWeight;
+    noFill();
+    strokeWeight(u(10));
+    stroke(0, 255, 0, 100);
+    rect(DAx, DAy, DAw, DAh);
+
+    stroke(255, 255, 0, 100);
+    rect(DPx, DPy, DPw, DPh);
+
+    pop();
+}
+
+function buildInfo() {
+    push();
+
+    strokeWeight(u(5));
+    stroke(255);
+    fill(0);
+    rect(x0 + margin / 2, y0 + margin / 2, sideLength - margin, sideLength / 4 - margin / 2);
+
+    noStroke();
+    fill(255);
+    textSize(u(28));
+    text("best allocation policies", x("l", 50), y("t", 70));
+
+    textSize(u(20));
+
+    let info;
+    if(workload === 0) info = "1. DRAM preferred\n2. DRAM always\n3. PM preferred";
+    else if(workload === 1) info = "1. PM preferred\n2. DRAM preferred\n3. DRAM always";
+    else if(workload === 2) info = "1. PM preferred\n2. DRAM preferred\n3. DRAM always\n(small differences)";
+    else if(workload === 3) info = "1. PM preferred\n2. DRAM preferred\n3. DRAM always\n(small differences)";
+    else if(workload === 4) info = "1. PM preferred\n2-3. DRAM always, DRAM preferred (tie)";
+    else if(workload === 5) info = "1. PM preferred\n2. DRAM always\n3. DRAM preferred";
+    else if(workload === 6) info = "1. DRAM preferred\n2. DRAM always\n3. PM preferred\n(small differences)"
+    else info = "[no info available]";
+
+    text(info, x("l", 50), y("t", 107));
+
+    pop();
+}
+
 function createButtons() {
+    infoButton = new Button(x("l", 120), y("t", -65), u(54), u(54), "Show\ninfo", u(14), true, null);
+    infoButton.action = (function() {
+        showInfo = !showInfo;
+        return true;
+    })
+    areaButton = new Button(x("l", 58), y("t", -65), u(54), u(54), "Show\nareas", u(14), true, null);
+    areaButton.action = (function() {
+        showAreas = !showAreas;
+        return true;
+    });
+
     zeroButton = new Button(x("l", -4), y("t", -65), u(54), u(54), "Show\nzeroes", u(14), true, null);
     zeroButton.action = (function () {
         showZeroes = !showZeroes;
@@ -230,9 +324,15 @@ function setup() {
 
     heatMap.display(x0, y0, dimension - u(140));
 
+
+    if(showAreas) buildAreas();
+    if(showInfo) buildInfo();
+
 } window.onresize = setup;
 
 function draw() {
+    infoButton.display();
+    areaButton.display();
     zeroButton.display();
     menuButton.display();
     if (showMenu) {
@@ -247,6 +347,8 @@ function draw() {
 }
 
 function mouseClicked() {
+    infoButton.click();
+    areaButton.click();
     zeroButton.click();
 
     let menuClick = menuButton.click();
