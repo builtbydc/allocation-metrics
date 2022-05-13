@@ -365,7 +365,7 @@ function mouseClicked() {
         setup();
     }
 
-}
+} window.ontouchend = mouseClicked;
 
 class HeatMap {
     constructor(metrics, maxDT, maxCOUNT, length) {
