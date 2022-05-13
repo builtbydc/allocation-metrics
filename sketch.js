@@ -78,14 +78,14 @@ function setConstants() {
         landscape = true;
         dimension = windowHeight;
         unit = dimension / 1000;
-        margin = u(70);
+        margin = u(100);
         x0 = (windowWidth - dimension) / 2 + margin;
         y0 = margin;
     } else {
         landscape = false;
         dimension = windowWidth;
         unit = dimension / 1000;
-        margin = u(70);
+        margin = u(100);
         x0 = margin;
         y0 = (windowHeight - dimension) / 2 + margin;
     }
@@ -104,18 +104,32 @@ function buildAxes() {
     strokeWeight(1);
     let counter = heatMap.size - 1;
     for(let yt = y0 + sideLength / heatMap.size; yt < y0 + sideLength - sideLength / heatMap.size; yt += sideLength / heatMap.size) {
-        if(counter % 5 === 0)
+        if(counter % 5 === 0) {
             line(x0 - u(17), yt, x0 - u(5), yt);
-        else
+            push();
+            noStroke();
+            fill(255);
+            textSize(u(14));
+            textAlign(CENTER);
+            text(Math.round(counter * heatMap.maxCOUNT / heatMap.size), x0 - u(34), yt + u(5));
+            pop();
+        } else
             line(x0 - u(11), yt, x0 - u(5), yt);
         counter--;
     }
 
     counter = 1;
     for(let xt = x0 + sideLength / heatMap.size; xt < x0 + sideLength; xt += sideLength / heatMap.size) {
-        if(counter % 5 === 0) 
+        if(counter % 5 === 0) {
             line(xt, y0 + sideLength + u(17), xt, y0 + sideLength + u(5));
-        else
+            push();
+            noStroke();
+            fill(255);
+            textSize(u(14));
+            textAlign(CENTER);
+            text(dig3(counter * (heatMap.maxDT / heatMap.size) / 1000) + " s", xt, y("b", 31));
+            pop();
+        } else
             line(xt, y0 + sideLength + u(11), xt, y0 + sideLength + u(5));
         counter++;
     }
@@ -126,23 +140,30 @@ function buildAxes() {
     fill(255);
 
     push();
-    translate(x("l", -28), y("t", 600));
+    translate(x("l", -58), y("t", 600));
     rotate(radians(-90));
     text("number of accesses ⟶", 0, 0);
     pop();
 
-    text("time between allocation and first access ⟶", x("l", 120), y("b", 45));
+    text("time between allocation and first access ⟶", x("l", 120), y("b", 70));
 
     textSize(u(14));
     fill(255);
     noStroke();
 
     textAlign(CENTER);
+    /*
     text("MAX\n" + dig3(heatMap.maxCOUNT), x("l", -38), y("t", 14));
     text("MIN\n" + dig3(heatMap.minCOUNT), x("l", -38), y("b", -25));
 
     text("MIN\n" + dig3(heatMap.minDT / 1000) + " s", x("l", 17), y("b", 34));
     text("MAX\n" + dig3(heatMap.maxDT / 1000) + " s", x("l", 843), y("b", 34));
+    */
+    push();
+    textAlign(CENTER);
+    text("0", x0 - u(34), y0 + sideLength + u(5));
+    text("0 s", x0, y("b", 31));
+    pop();
 
     textSize(u(35));
     text(workloadName, x0 + sideLength / 2, y("t", -23));
@@ -322,7 +343,7 @@ function setup() {
     buildAxes();
     buildGradient();
 
-    heatMap.display(x0, y0, dimension - u(140));
+    heatMap.display(x0, y0, dimension - 2*margin);
 
 
     if(showAreas) buildAreas();
