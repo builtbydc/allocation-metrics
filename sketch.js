@@ -233,7 +233,7 @@ function buildInfo() {
     noStroke();
     fill(255);
     textSize(u(28));
-    text("best allocation policies", x("l", 50), y("t", 70));
+    text("best allocation policies", x0 + margin / 2 + u(10), y0 + margin / 2 + u(30));
 
     textSize(u(20));
 
@@ -247,18 +247,18 @@ function buildInfo() {
     else if(workload === 6) info = "1. DRAM preferred\n2. DRAM always\n3. PM preferred\n(small differences)"
     else info = "[no info available]";
 
-    text(info, x("l", 50), y("t", 107));
+    text(info, x0 + margin / 2 + u(10), y0 + margin / 2 + u(57));
 
     pop();
 }
 
 function createButtons() {
-    infoButton = new Button(x("l", 120), y("t", -65), u(54), u(54), "Show\ninfo", u(14), true, null);
+    infoButton = new Button(x("l", 58), y("t", -65), u(54), u(54), "Show\ninfo", u(14), true, null);
     infoButton.action = (function() {
         showInfo = !showInfo;
         return true;
     })
-    areaButton = new Button(x("l", 58), y("t", -65), u(54), u(54), "Show\nareas", u(14), true, null);
+    areaButton = new Button(x("l", 58), y("t", -65), u(54), u(54), "Show\nareas", u(14), false, null);
     areaButton.action = (function() {
         showAreas = !showAreas;
         return true;
@@ -277,14 +277,15 @@ function createButtons() {
         return true;
     });
 
-    let sbx0 = x("l", 35);
-    let sbx1 = x("l", 35) + sideLength / 2;
-    let sby0 = y("t", 35);
-    let sby1 = y("t", 35) + sideLength / 4;
-    let sby2 = y("t", 35) + sideLength / 2;
-    let sby3 = y("t", 35) + 3 * sideLength / 4;
-    let sbw = sideLength / 2 - margin;
-    let sbh = sideLength / 4 - margin;
+    let buttonMargin = u(50);
+    let sbx0 = x0 + buttonMargin / 2;
+    let sbx1 = x0 + buttonMargin / 2 + sideLength / 2;
+    let sby0 = y0 + buttonMargin / 2;
+    let sby1 = y0 + buttonMargin / 2 + sideLength / 4;
+    let sby2 = y0 + buttonMargin / 2 + sideLength / 2;
+    let sby3 = y0 + buttonMargin / 2 + 3 * sideLength / 4;
+    let sbw = sideLength / 2 - buttonMargin;
+    let sbh = sideLength / 4 - buttonMargin;
     selectButtons = [];
     selectButtons[0] = new Button(sbx0, sby0, sbw, sbh, "GAPBS BFS", u(28), false, 0);
     selectButtons[1] = new Button(sbx0, sby1, sbw, sbh, "GAPBS TC", u(28), false, 1);
@@ -353,7 +354,7 @@ function setup() {
 
 function draw() {
     infoButton.display();
-    areaButton.display();
+    //areaButton.display();
     zeroButton.display();
     menuButton.display();
     if (showMenu) {
