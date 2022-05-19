@@ -1,6 +1,5 @@
 .venv
 access_dict
-oldjs
-js3
+js-dt
 .DS_Store
 oldmain.py

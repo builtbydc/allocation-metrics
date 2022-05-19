@@ -41,7 +41,7 @@ function getColor(val) {
 
 function dig3(val) {
     if (val >= 1000) return Math.round(val);
-    if (val < 0.001) return 0;
+    if (val < 0.0001) return 0;
     let c = 0;
     while (val * 10 < 1000) {
         val *= 10;
@@ -102,8 +102,8 @@ function buildAxes() {
 
     stroke(255);
     strokeWeight(1);
-    let counter = heatMap.size - 1;
-    for(let yt = y0 + sideLength / heatMap.size; yt < y0 + sideLength - sideLength / heatMap.size; yt += sideLength / heatMap.size) {
+    let counter = heatMap.size;
+    for(let yt = y0; yt < y0 + sideLength + 1; yt += sideLength / heatMap.size) {
         if(counter % 5 === 0) {
             line(x0 - u(17), yt, x0 - u(5), yt);
             push();
@@ -111,15 +111,22 @@ function buildAxes() {
             fill(255);
             textSize(u(14));
             textAlign(CENTER);
-            text(Math.round(counter * heatMap.maxCOUNT / heatMap.size), x0 - u(34), yt + u(5));
+
+            push();
+            translate(x0 - u(20), yt);
+            rotate(radians(-90));
+            text(dig3(counter * heatMap.maxCOUNT / heatMap.size), 0, 0);
+            
+            pop();
+
             pop();
         } else
             line(x0 - u(11), yt, x0 - u(5), yt);
         counter--;
     }
 
-    counter = 1;
-    for(let xt = x0 + sideLength / heatMap.size; xt < x0 + sideLength; xt += sideLength / heatMap.size) {
+    counter = 0;
+    for(let xt = x0; xt < x0 + sideLength + 1; xt += sideLength / heatMap.size) {
         if(counter % 5 === 0) {
             line(xt, y0 + sideLength + u(17), xt, y0 + sideLength + u(5));
             push();
@@ -127,7 +134,7 @@ function buildAxes() {
             fill(255);
             textSize(u(14));
             textAlign(CENTER);
-            text(dig3(counter * (heatMap.maxDT / heatMap.size) / 1000) + " s", xt, y("b", 31));
+            text(dig3(counter * (heatMap.maxDT / heatMap.size) / 1000000) + " M", xt, y("b", 31));
             pop();
         } else
             line(xt, y0 + sideLength + u(11), xt, y0 + sideLength + u(5));
@@ -140,12 +147,16 @@ function buildAxes() {
     fill(255);
 
     push();
-    translate(x("l", -58), y("t", 600));
+    textAlign(CENTER);
+    translate(x("l", -58), y0 + sideLength / 2);
     rotate(radians(-90));
-    text("number of accesses ⟶", 0, 0);
+    text("page importance [sqrt(# accesses / avg. reuse distance)]", 0, 0);
     pop();
 
-    text("time between allocation and first access ⟶", x("l", 120), y("b", 70));
+    push();
+    textAlign(CENTER);
+    text("reuse distance [allocation to first access] (millions)", x0 + sideLength / 2, y("b", 70));
+    pop();
 
     textSize(u(14));
     fill(255);
@@ -159,11 +170,6 @@ function buildAxes() {
     text("MIN\n" + dig3(heatMap.minDT / 1000) + " s", x("l", 17), y("b", 34));
     text("MAX\n" + dig3(heatMap.maxDT / 1000) + " s", x("l", 843), y("b", 34));
     */
-    push();
-    textAlign(CENTER);
-    text("0", x0 - u(34), y0 + sideLength + u(5));
-    text("0 s", x0, y("b", 31));
-    pop();
 
     textSize(u(35));
     text(workloadName, x0 + sideLength / 2, y("t", -23));
@@ -305,28 +311,28 @@ function createButtons() {
 
 function createHeatMap() {
     if (workload === 0) {
-        heatMap = new HeatMap(BFSmetrics, BFSmaxDT, BFSmaxCOUNT, BFSlength);
+        heatMap = new HeatMap(BFSmetrics, BFSmaxXMETRIC, BFSmaxYMETRIC, BFSlength);
         workloadName = "GAPBS BFS";
     } else if (workload === 1) {
-        heatMap = new HeatMap(TCmetrics, TCmaxDT, TCmaxCOUNT, TClength);
+        heatMap = new HeatMap(TCmetrics, TCmaxXMETRIC, TCmaxYMETRIC, TClength);
         workloadName = "GAPBS TC";
     } else if (workload === 2) {
-        heatMap = new HeatMap(NASBTmetrics, NASBTmaxDT, NASBTmaxCOUNT, NASBTlength);
+        heatMap = new HeatMap(BTmetrics, BTmaxXMETRIC, BTmaxYMETRIC, BTlength);
         workloadName = "NAS BT";
     } else if (workload === 3) {
-        heatMap = new HeatMap(NASLU02metrics, NASLU02maxDT, NASLU02maxCOUNT, NASLU02length);
+        heatMap = new HeatMap(LUmetrics, LUmaxXMETRIC, LUmaxYMETRIC, LUlength);
         workloadName = "NAS LU-02";
     } else if (workload === 4) {
-        heatMap = new HeatMap(NASSPmetrics, NASSPmaxDT, NASSPmaxCOUNT, NASSPlength);
+        heatMap = new HeatMap(SPmetrics, SPmaxXMETRIC, SPmaxYMETRIC, SPlength);
         workloadName = "NAS SP"
     } else if (workload === 5) {
-        heatMap = new HeatMap(SPECpmniGhostmetrics, SPECpmniGhostmaxDT, SPECpmniGhostmaxCOUNT, SPECpmniGhostlength);
+        heatMap = new HeatMap(PGmetrics, PGmaxXMETRIC, PGmaxYMETRIC, PGlength);
         workloadName = "SPEC pmniGhost";
     } else if (workload === 6) {
-        heatMap = new HeatMap(SPECpseismicmetrics, SPECpseismicmaxDT, SPECpseismicmaxCOUNT, SPECpseismiclength);
+        heatMap = new HeatMap(PSMmetrics, PSMmaxXMETRIC, PSMmaxYMETRIC, PSMlength);
         workloadName = "SPEC pseismic";
     } else if (workload === 7) {
-        heatMap = new HeatMap(SPECpilbdcmetrics, SPECpilbdcmaxDT, SPECpilbdcmaxCOUNT, SPECpilbdclength);
+        heatMap = new HeatMap(PBmetrics, PBmaxXMETRIC, PBmaxYMETRIC, PBlength);
         workloadName = "SPEC pilbdc"
     }
 }

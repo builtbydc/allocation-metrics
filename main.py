@@ -1,3 +1,5 @@
+from math import log2
+from random import random
 import sys
 import os
 import json
@@ -8,6 +10,8 @@ with open(sys.argv[1]) as f:
 
 # convert file to dictionary
 accessDict = json.loads(file)
+
+workload = sys.argv[2]
 
 # place all values in L
 L = []
@@ -31,74 +35,84 @@ minTime = L[0][0]
 for lst in L:
     for i in range(len(lst)):
         lst[i] -= minTime
-        
-maxTime = 0
-for lst in L:
-    if len(lst) > 1:
-        if lst[len(lst) - 1] > maxTime:
-            maxTime = lst[len(lst) - 1]
-    elif len(lst) == 1:
-        if lst[0] > maxTime:
-            maxTime = lst[0]
-        
 
-        
-dt = []
-dt2 = []
-count = []
-count2 = []
+maxTIME = 0
+for lst in L:
+    if(lst[len(lst) - 1] > maxTIME):
+        maxTIME = lst[len(lst) - 1]
+
+maxTIME += 1
+tr = 1000000
+gradient = []
+
+for i in range(tr):
+    gradient.append([])
+    gradient[i].append(0)
+    gradient[i].append(0)
+
+for lst in L:
+    for t in lst:
+        i = int(tr * t / maxTIME)
+        gradient[i][1] += 1
+
+gradTotal = 0
+for i in range(tr):
+    gradient[i][0] = gradTotal
+    gradTotal += gradient[i][1]
+
+def use(t):
+    i = int(tr * t / maxTIME)
+    return gradient[i][0] + 0.5*gradient[i][1]
+
+for lst in L:
+    for i in range(len(lst)):
+        lst[i] = use(lst[i])
+
+xmetric = []
+ymetric = []
 for lst in L:
     if(len(lst) > 1):
-        dt.append(lst[1] - lst[0])
-        dt2.append(lst[1] - lst[0])
-        count.append(len(lst) - 1)
-        count2.append(len(lst) - 1)
+        xmetric.append(lst[1] - lst[0])
         
-dt2.sort()
-count2.sort()
-num2 = len(dt2)
-trim = 0.01
-trimN = int(trim*num2)
-maxDT = dt2[num2 - trimN] + 1
-maxCOUNT = count2[num2 - trimN] + 1
+        it = 1
+        total = 0
+        v = len(lst) - 1
+        for i in range(v - 1):
+            total += (lst[it+1] - lst[it])
+        if total == 0:
+            ymetric.append(0)
+        else:
+            ymetric.append(log2((v-1)*v / total + 1))
 
-toRemove = 0
-print("prob1")
-for i in range(num2):
-    if (dt[i] > maxDT) | (count[i] > maxCOUNT):
-        dt[i] = -1
-        count[i] = -1
-        toRemove += 1
+xcopy = xmetric.copy()
+ycopy = ymetric.copy()
 
-print("prob2")
-    
-print("prob3")
-maxDT = max(dt) + 1
-maxCOUNT = max(count) + 1
+xcopy.sort()
+ycopy.sort()
 
+p = float(sys.argv[3])
+maxXMETRIC = xcopy[int((1-p)*len(xcopy))]
+maxYMETRIC = ycopy[int((1-p)*len(ycopy))]
+
+res = 50.0
+unitXMETRIC = maxXMETRIC / res
+unitYMETRIC = maxYMETRIC / res
+
+# populate grid
 grid = []
-res = maxCOUNT
-for i in range(res):
+for i in range(int(res)):
     grid.append([])
-    for j in range(res):
+    for j in range(int(res)):
         grid[i].append(0)
 
-unitDT = maxDT / (res + 0.0)
-unitCOUNT = maxCOUNT / (res + 0.0)
-
-for i in range(len(dt)):
-    if (dt[i] != -1) & (count[i] != -1):
-        x = int(dt[i] / unitDT)
-        y = int(count[i] / unitCOUNT)
+for i in range(len(xmetric)):
+    if (xmetric[i] < maxXMETRIC) & (ymetric[i] < maxYMETRIC):
+        x = int(xmetric[i] / unitXMETRIC)
+        y = int(ymetric[i] / unitYMETRIC)
         grid[y][x] += 1
 
-
+# create metrics
 metrics = []
-# for i in range(len(B)-1):
-#     metrics.append("\t[" + str(y1[i]) + ", " + str(y2[i]) + 
-#                    ", " + str(y3[i]) + ", " + str(y4[i]) + "],\n")
-# metrics.append("\t[" + str(y1[len(B)-1]) + ", " + str(y2[len(B)-1]) + 
-#                    ", " + str(y3[len(B)-1]) + ", " + str(y4[len(B)-1]) + "]\n")
 for lineIndex in range(len(grid)):
     line = grid[lineIndex]
     outLine = "\t["
@@ -109,18 +123,20 @@ for lineIndex in range(len(grid)):
         outLine += ", "
     outLine += "\n"
     metrics.append(outLine)
-        
-filename = sys.argv[3] + "-metrics.js"
+
+# write file
+filename = workload + "-metrics.js"
 try:
     os.remove(filename)
 except:
     except_temp = 0
     
 mfile = open(filename, "w")
-mfile.write("let " + sys.argv[3] + "length = " + str(maxTime) + ";\n")
-mfile.write("let " + sys.argv[3] + "maxDT = " + str(maxDT) + ";\n")
-mfile.write("let " + sys.argv[3] + "maxCOUNT = " + str(maxCOUNT) + ";\n")
-mfile.write("const " + sys.argv[3] + "metrics = [\n")
+mfile.write("let " + workload + "length = " + str(maxTIME) + ";\n")
+mfile.write("let " + workload + "maxXMETRIC = " + str(maxXMETRIC) + ";\n")
+mfile.write("let " + workload + "maxYMETRIC = " + str(maxYMETRIC) + ";\n")
+mfile.write("const " + workload + "metrics = [\n")
 mfile.writelines(metrics)
 mfile.write("];")
 mfile.close()
+
