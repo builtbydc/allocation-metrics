@@ -150,7 +150,7 @@ function buildAxes() {
     textAlign(CENTER);
     translate(x("l", -58), y0 + sideLength / 2);
     rotate(radians(-90));
-    text("page importance [sqrt(# accesses / avg. reuse distance)]", 0, 0);
+    text("page importance [(# accesses / avg. reuse distance)^(1/4)]", 0, 0);
     pop();
 
     push();

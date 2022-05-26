@@ -1,5 +1,3 @@
-from math import log2
-from random import random
 import sys
 import os
 import json
@@ -82,19 +80,13 @@ for lst in L:
         if total == 0:
             ymetric.append(0)
         else:
-            ymetric.append(log2((v-1)*v / total + 1))
+            ymetric.append(pow((v-1)*v / total, 1/4))
 
-xcopy = xmetric.copy()
-ycopy = ymetric.copy()
 
-xcopy.sort()
-ycopy.sort()
+maxXMETRIC = 2800000
+maxYMETRIC = 0.28
 
-p = float(sys.argv[3])
-maxXMETRIC = xcopy[int((1-p)*len(xcopy))]
-maxYMETRIC = ycopy[int((1-p)*len(ycopy))]
-
-res = 50.0
+res = 70.0
 unitXMETRIC = maxXMETRIC / res
 unitYMETRIC = maxYMETRIC / res
 
