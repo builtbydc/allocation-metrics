@@ -39,6 +39,10 @@ function getColor(val) {
     return color(r1 + ((val - p) / np) * (r2 - r1), g1 + ((val - p) / np) * (g2 - g1), b1 + ((val - p) / np) * (b2 - b1));
 }
 
+function setLineDash(list) {
+    drawingContext.setLineDash(list);
+  }
+
 function dig3(val) {
     if (val >= 1000) return Math.round(val);
     if (val < 0.0001) return 0;
@@ -228,6 +232,62 @@ function buildAreas() {
     pop();
 }
 
+function buildAvgLine() {
+    let arr = heatMap.array;
+    let s = arr.length;
+    let t = 0;
+    for(let i = 0; i < s; i++) {
+        for(let j = 0; j < s; j++) {
+            t += arr[i][j];
+        }
+    }
+    t = t / 2;
+    let t2 = 0;
+    let f = false;
+    let row = 0;
+    for(let i = 0; i < s; i++) {
+        for(let j = 0; j < s; j++) {
+            t2 += arr[i][j];
+            if(t2 >= t) {
+                f = true;
+                row = i;
+                break;
+            }
+        }
+        if (f) break;
+    }
+    row = 70 - row;
+    push();
+    strokeWeight(3);
+    stroke(255);
+    setLineDash([10, 10]);
+    line(x0, y0 + (row / 70) * sideLength, x0 + sideLength, y0 + (row/ 70) * sideLength);
+    pop();
+
+    t2 = 0;
+    f = false;
+    col = 0;
+    for(let i = 0; i < s; i++) {
+        for(let j = 0; j < s; j++) {
+            t2 += arr[j][i];
+            if(t2 >= t) {
+                f = true;
+                col = i;
+                break;
+            }
+        }
+        if (f) break;
+    }
+
+    push();
+    strokeWeight(3);
+    stroke(255);
+    setLineDash([10, 10]);
+    line(x0 + (col / 70) * sideLength, y0, x0 + (col/ 70) * sideLength, y0 + sideLength);
+    pop();
+
+}
+
 function buildInfo() {
     push();
 
@@ -351,6 +411,7 @@ function setup() {
     buildGradient();
 
     heatMap.display(x0, y0, dimension - 2*margin);
+    //buildAvgLine();
 
 
     if(showAreas) buildAreas();
@@ -416,27 +477,37 @@ class HeatMap {
     }
 
     display(x0, y0, dimension) {
-        let range = this.arrayMax - this.arrayMin;
         let d = dimension / this.size;
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                let rowCF = this.size - i - 1;
-                if (showZeroes && this.array[i][j] === 0) {
-                    stroke(0);
-                    let wgt = d / 6;
-                    strokeWeight(wgt);
-                    fill(100);
-                    rect(x0 + j * d + wgt, y0 + rowCF * d + wgt, d - 2 * wgt, d - 2 * wgt, d / 2);
-                }
-                else {
-                    let val = this.array[i][j] - this.arrayMin;
-                    strokeWeight(u(1));
-                    stroke(getColor(val / range));
-                    fill(getColor(val / range));
-                    rect(x0 + j * d, y0 + rowCF * d, d, d);
-                }
-            }
+        let len = this.size;
 
+        noStroke();
+
+        let p = 2;
+        for (let y = 0; y < dimension; y += p) {
+            for (let x = 0; x < dimension; x += p) {
+                let z = 0;
+                let e = 2;
+                let i0 = Math.floor(y / d) - e;
+                let j0 = Math.floor(x / d) - e;
+                for (let i = i0; i <= i0 + 2 * e; i++) {
+                    for (let j = j0; j <= j0 + 2 * e; j++) {
+                        if (i >= 0 && i < len && j >= 0 && j < len) {
+                            let n = this.array[i][j] / this.arrayMax;
+                            let jx = j * d + d / 2;
+                            let iy = i * d + d / 2;
+                            let k = 1 / Math.pow(d * Math.sqrt(2) / 2, 2);
+                            let xPart = Math.pow(2, -k * Math.pow(x - jx, 2));
+                            let yPart = Math.pow(2, -k * Math.pow(y - iy, 2));
+                            z += (n / Math.sqrt(2)) * xPart * yPart;
+                        }
+                    }
+                }
+                let f = getColor(z);
+                //let f = z*255;
+                //stroke(f);
+                fill(f);
+                rect(x0 + x, y0 + dimension-y-p, p, p);
+            }
         }
     }
 
