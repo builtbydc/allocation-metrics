@@ -477,16 +477,18 @@ class HeatMap {
     }
 
     display(x0, y0, dimension) {
-        let d = dimension / this.size;
-        let len = this.size;
-
         noStroke();
 
+        let d = dimension / this.size;
+        let len = this.size;
         let p = 2;
+        let e = 2;
+        let k = 1 / Math.pow(d * Math.sqrt(2) / 2, 2);
+        let maxZ = 0;
         for (let y = 0; y < dimension; y += p) {
             for (let x = 0; x < dimension; x += p) {
                 let z = 0;
-                let e = 2;
+
                 let i0 = Math.floor(y / d) - e;
                 let j0 = Math.floor(x / d) - e;
                 for (let i = i0; i <= i0 + 2 * e; i++) {
@@ -495,14 +497,34 @@ class HeatMap {
                             let n = this.array[i][j] / this.arrayMax;
                             let jx = j * d + d / 2;
                             let iy = i * d + d / 2;
-                            let k = 1 / Math.pow(d * Math.sqrt(2) / 2, 2);
                             let xPart = Math.pow(2, -k * Math.pow(x - jx, 2));
                             let yPart = Math.pow(2, -k * Math.pow(y - iy, 2));
-                            z += (n / Math.sqrt(2)) * xPart * yPart;
+                            z += n * xPart * yPart;
                         }
                     }
                 }
-                let f = getColor(z);
+                if(z > maxZ) maxZ = z;
+            }
+        }
+        for (let y = 0; y < dimension; y += p) {
+            for (let x = 0; x < dimension; x += p) {
+                let z = 0;
+
+                let i0 = Math.floor(y / d) - e;
+                let j0 = Math.floor(x / d) - e;
+                for (let i = i0; i <= i0 + 2 * e; i++) {
+                    for (let j = j0; j <= j0 + 2 * e; j++) {
+                        if (i >= 0 && i < len && j >= 0 && j < len) {
+                            let n = this.array[i][j] / this.arrayMax;
+                            let jx = j * d + d / 2;
+                            let iy = i * d + d / 2;
+                            let xPart = Math.pow(2, -k * Math.pow(x - jx, 2));
+                            let yPart = Math.pow(2, -k * Math.pow(y - iy, 2));
+                            z += n * xPart * yPart;
+                        }
+                    }
+                }
+                let f = getColor(z / maxZ);
                 //let f = z*255;
                 //stroke(f);
                 fill(f);
