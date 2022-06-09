@@ -17,26 +17,29 @@ function y(tb, val) {
     if (tb === "b") return y0 + sideLength + u(val);
 }
 
-function getColor(val) {
-    let p = 0.1;
-    let np = 1 - p;
+function singleGradient(ci, cj, val, len) {
+    return color(ci._array[0] * 255 + (val/len) * (cj._array[0]-ci._array[0]) * 255, 
+                 ci._array[1] * 255 + (val/len) * (cj._array[1]-ci._array[1]) * 255,
+                 ci._array[2] * 255 + (val/len) * (cj._array[2]-ci._array[2]) * 255);
+}
 
-    let r0 = 0;
-    let g0 = 0;
-    let b0 = 0;
-
-    let r1 = 60;
-    let g1 = 9;
-    let b1 = 108;
-
-    let r2 = 255;
-    let g2 = 255;
-    let b2 = 255;
-
-    if (val < p) {
-        return color(r0 + (val / p) * (r1 - r0), g0 + (val / p) * (g1 - g0), b0 + (val / p) * (b1 - b0));
+function gradient(val, zero, ...colors) {
+    let sum = 0;
+    let i = 1;
+    for(; i < colors.length - 2; i += 2) {
+        if(val < colors[i]) break;
+        sum = colors[i];
     }
-    return color(r1 + ((val - p) / np) * (r2 - r1), g1 + ((val - p) / np) * (g2 - g1), b1 + ((val - p) / np) * (b2 - b1));
+    return singleGradient(colors[i-1], colors[i+1], val - sum, colors[i] - sum);
+}
+
+function getColor(val) {
+    let black = color(0, 0, 0);
+    let purple = color(60, 9, 108);
+    let pink = color(252, 186, 203);
+    let white = color(255, 255, 255);
+
+    return gradient(val, 0, black, 0.1, purple, 0.9, pink, 1, white);
 }
 
 function setLineDash(list) {
@@ -538,13 +541,15 @@ class HeatMap {
                 }
                 z = z / maxZ;
                 
-                if(z > 0.004) {
-                    let f = getColor(z);
-                    //let f = z * 255;
+                let f;
+                if (z > 0.004) {
+                    f = getColor(z);
                     stroke(f);
                     fill(f);
-                    rect(x0 + x, y0 + dimension-y-p, p, p);
+                    rect(x0 + x, y0 + dimension - y - p, p, p);
+                    //let f = z * 255;
                 }
+                
                 
             }
         }
