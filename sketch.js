@@ -481,13 +481,15 @@ class HeatMap {
         let d = dimension / this.size;
         let len = this.size;
 
+        let copy = []
         for(let i = 0; i < len; i++) {
+            copy[i] = [];
             for(let j = 0; j < len; j++) {
-                if(this.array[i][j] > 0) this.array[i][j] = Math.log2(this.array[i][j]);
+                if(this.array[i][j] > 0) copy[i][j] = Math.log2(this.array[i][j]);
             }
         }
 
-        let p = 2;
+        let p = 1;
         let e = 2;
         let k = 1 / Math.pow(d * Math.sqrt(2) / 2, 2);
         let maxZ = 0;
@@ -500,8 +502,8 @@ class HeatMap {
                 for (let i = i0; i <= i0 + 2 * e; i++) {
                     for (let j = j0; j <= j0 + 2 * e; j++) {
                         if (i >= 0 && i < len && j >= 0 && j < len) {
-                            if(this.array[i][j] > 0) {
-                                let n = this.array[i][j] / this.arrayMax;
+                            if(copy[i][j] > 0) {
+                                let n = copy[i][j];
                                 let jx = j * d + d / 2;
                                 let iy = i * d + d / 2;
                                 let xPart = Math.pow(2, -k * Math.pow(x - jx, 2));
@@ -523,8 +525,8 @@ class HeatMap {
                 for (let i = i0; i <= i0 + 2 * e; i++) {
                     for (let j = j0; j <= j0 + 2 * e; j++) {
                         if (i >= 0 && i < len && j >= 0 && j < len) {
-                            if(this.array[i][j] > 0) {
-                                let n = this.array[i][j] / this.arrayMax;
+                            if(copy[i][j] > 0) {
+                                let n = copy[i][j];
                                 let jx = j * d + d / 2;
                                 let iy = i * d + d / 2;
                                 let xPart = Math.pow(2, -k * Math.pow(x - jx, 2));
@@ -534,11 +536,16 @@ class HeatMap {
                         }
                     }
                 }
-                let f = getColor(z / maxZ);
-                //let f = z*255;
-                //stroke(f);
-                fill(f);
-                rect(x0 + x, y0 + dimension-y-p, p, p);
+                z = z / maxZ;
+                
+                if(z > 0.004) {
+                    let f = getColor(z);
+                    //let f = z * 255;
+                    stroke(f);
+                    fill(f);
+                    rect(x0 + x, y0 + dimension-y-p, p, p);
+                }
+                
             }
         }
     }
