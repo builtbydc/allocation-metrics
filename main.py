@@ -1,3 +1,5 @@
+from math import log2
+from random import random
 import sys
 import os
 import json
@@ -71,22 +73,13 @@ ymetric = []
 for lst in L:
     if(len(lst) > 1):
         xmetric.append(lst[1] - lst[0])
-        
-        it = 1
-        total = 0
-        v = len(lst) - 1
-        for i in range(v - 1):
-            total += (lst[it+1] - lst[it])
-        if total == 0:
-            ymetric.append(0)
-        else:
-            ymetric.append(pow((v-1)*v / total, 1/4))
+        ymetric.append(log2(len(lst) - 1 + random()))
 
 
-maxXMETRIC = 2800000
-maxYMETRIC = 0.28
+maxXMETRIC = max(xmetric) + 1
+maxYMETRIC = max(ymetric) + 1
 
-res = 70.0
+res = int(pow(2, maxYMETRIC-1)) + 0.0
 unitXMETRIC = maxXMETRIC / res
 unitYMETRIC = maxYMETRIC / res
 
