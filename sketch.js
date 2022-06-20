@@ -35,32 +35,55 @@ function buildAxes() {
 
     noFill();
     strokeWeight(u(4));
-    stroke(255);
+    stroke(0);
     rect(x("l", -4), y("t", -4), sideLength + u(8), sideLength + u(8));
 
     textSize(u(14));
     textAlign(CENTER);
     strokeWeight(1);
-    fill(255);
+    fill(0);
     let counter = heatMap.size;
-    for(let yt = y0; yt < y0 + sideLength + 1; yt += sideLength / heatMap.size) {
-        if(counter % 5 === 0) {
-            line(x0 - u(17), yt, x0 - u(5), yt);
+    if(linear) {
+        for(let yt = y0; yt < y0 + sideLength + 1; yt += sideLength / heatMap.size) {
+            if(counter % 10 === 0) {
+                line(x0 - u(17), yt, x0 - u(5), yt);
 
-            push();
-            noStroke();
-            translate(x0 - u(20), yt);
-            rotate(radians(-90));
-            text(dig3(counter * heatMap.maxCOUNT / heatMap.size), 0, 0);
-            pop();
-        } else
-            line(x0 - u(11), yt, x0 - u(5), yt);
-        counter--;
+                push();
+                noStroke();
+                translate(x0 - u(20), yt);
+                rotate(radians(-90));
+                let num = counter * heatMap.maxCOUNT / heatMap.size;
+                text(sne(num), 0, 0);
+                pop();
+            } else
+                line(x0 - u(11), yt, x0 - u(5), yt);
+            counter--;
+        }
+    } else {
+        let max = Math.pow(heatMap.maxCOUNT, 4);
+        let delta = max / 70;
+        let counter = 0;
+        for(let i = 0; i < max; i += delta) {
+            let yt = y0 + sideLength - Math.pow(i, 1/4) / heatMap.maxCOUNT * sideLength;
+            if(counter % 10 == 0) {
+                line(x("l", -17), yt, x("l", -5), yt);
+
+                push();
+                noStroke();
+                translate(x("l", -20), yt);
+                rotate(radians(-90));
+                if(counter != 40 && counter != 60) text(sne(i), 0, 0);
+                pop();
+            } else {
+                line(x0 - u(11), yt, x0 - u(5), yt);
+            }
+            counter++;
+        }
     }
 
     counter = 0;
     for(let xt = x0; xt < x0 + sideLength + 1; xt += sideLength / heatMap.size) {
-        if(counter % 5 === 0) {
+        if(counter % 10 === 0) {
             line(xt, y("b", -17), xt, y("b", -5));
 
             push();
@@ -78,10 +101,10 @@ function buildAxes() {
     push();
     translate(x("l", -58), y0 + sideLength / 2);
     rotate(radians(-90));
-    text("page importance [(# accesses / avg. reuse distance)^(1/4)]", 0, 0);
+    text("Page Importance [# Accesses / avg. Reuse Distance*]", 0, 0);
     pop();
 
-    text("reuse distance [allocation to first access] (millions)", x0 + sideLength / 2, y("b", -70));
+    text("Reuse Distance* [allocation to first access] (millions)", x0 + sideLength / 2, y("b", -70));
 
     textSize(u(35));
     text(workloadName, x0 + sideLength / 2, y("t", -23));
@@ -102,7 +125,7 @@ function buildGradient() {
     }
 
     noStroke();
-    fill(255);
+    fill(0);
     textSize(u(14));
     textAlign(CENTER);
     text("more\npages", x("r", -38), y("t", 14));
@@ -115,12 +138,12 @@ function buildInfo() {
     push();
 
     strokeWeight(u(4));
-    stroke(255);
-    fill(0);
+    stroke(0);
+    fill(255);
     rect(x("l", 50), y("t", 50), sideLength - margin, sideLength / 4 - margin / 2);
 
     noStroke();
-    fill(255);
+    fill(0);
     textSize(u(28));
     text("best allocation policies", x("l", 60), y("t", 80));
 
@@ -143,7 +166,7 @@ function buildInfo() {
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    background(0);
+    background(255);
     textFont(font);
 
     setConstants();
@@ -163,6 +186,7 @@ function setup() {
 function draw() {
     infoButton.display();
     zeroButton.display();
+    linearButton.display();
     menuButton.display();
     if (showMenu) {
         noStroke();
@@ -178,6 +202,7 @@ function draw() {
 function mouseClicked() {
     infoButton.click();
     zeroButton.click();
+    linearButton.click();
 
     let menuClick = menuButton.click();
     let selectClick = false;

@@ -33,9 +33,11 @@ function getColor(val) {
     let black = [0,0,0];
     let purple = [60,9,108];
     let pink = [252, 186, 203];
+    let green = [180, 227, 61];
+    let blue = [180, 225, 255];
     let white = [255, 255, 255];
 
-    return gradient(val, 0, black, 0.1, purple, 0.9, pink, 1, white);
+    return gradient(val, 0, white, 0.05, blue, 0.85, purple, 1, black);
 }
 
 function dig3(val) {
@@ -48,4 +50,14 @@ function dig3(val) {
     }
     val = Math.round(val);
     return val / Math.pow(10, c);
+}
+
+function sne(val) {
+    if(val <= 0) return "0";
+    let c = 0;
+    for(; val * 10 < 100; c--) val *= 10;
+    val = Math.round(val);
+    val /= 10
+    let f = Math.round(val) == val;
+    return val + (f?".0":"") + "e" + (c+1);
 }

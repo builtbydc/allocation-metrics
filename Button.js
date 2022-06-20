@@ -56,6 +56,7 @@ let infoButton;
 let showInfo = false;
 let zeroButton;
 let showZeroes = false;
+let linearButton;
 let menuButton;
 let showMenu = false;
 let selectButtons = [];
@@ -70,6 +71,12 @@ function createButtons() {
     zeroButton = new Button(x("l", -4), y("t", -65), u(54), u(54), "Show\nzeroes", u(14), true, null);
     zeroButton.action = (function () {
         showZeroes = !showZeroes;
+        return true;
+    });
+
+    linearButton = new Button(x("l", 120), y("t", -65), u(54), u(54), "Linear/\nQuartic", u(14), true, null);
+    linearButton.action = (function () {
+        linear = !linear;
         return true;
     });
 

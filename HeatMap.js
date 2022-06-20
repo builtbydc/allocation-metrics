@@ -112,31 +112,56 @@ class HeatMap {
 let heatMap;
 let workload = 0;
 let workloadName;
+let linear = false;
 
 function createHeatMap() {
     if (workload === 0) {
-        heatMap = new HeatMap(BFSmetrics, BFSmaxXMETRIC, BFSmaxYMETRIC, BFSlength);
+        if(linear)
+            heatMap = new HeatMap(BFSmetricsLinear, BFSmaxXMETRICLinear, BFSmaxYMETRICLinear, BFSlengthLinear);
+        else
+            heatMap = new HeatMap(BFSmetrics, BFSmaxXMETRIC, BFSmaxYMETRIC, BFSlength);
         workloadName = "GAPBS BFS";
     } else if (workload === 1) {
-        heatMap = new HeatMap(TCmetrics, TCmaxXMETRIC, TCmaxYMETRIC, TClength);
+        if(linear)
+            heatMap = new HeatMap(TCmetricsLinear, TCmaxXMETRICLinear, TCmaxYMETRICLinear, TClengthLinear);
+        else
+            heatMap = new HeatMap(TCmetrics, TCmaxXMETRIC, TCmaxYMETRIC, TClength);
         workloadName = "GAPBS TC";
     } else if (workload === 2) {
-        heatMap = new HeatMap(BTmetrics, BTmaxXMETRIC, BTmaxYMETRIC, BTlength);
+        if(linear)
+            heatMap = new HeatMap(BTmetricsLinear, BTmaxXMETRICLinear, BTmaxYMETRICLinear, BTlengthLinear);
+        else
+            heatMap = new HeatMap(BTmetrics, BTmaxXMETRIC, BTmaxYMETRIC, BTlength);
         workloadName = "NAS BT";
     } else if (workload === 3) {
-        heatMap = new HeatMap(LUmetrics, LUmaxXMETRIC, LUmaxYMETRIC, LUlength);
+        if(linear)
+            heatMap = new HeatMap(LUmetricsLinear, LUmaxXMETRICLinear, LUmaxYMETRICLinear, LUlengthLinear);
+        else
+            heatMap = new HeatMap(LUmetrics, LUmaxXMETRIC, LUmaxYMETRIC, LUlength);
         workloadName = "NAS LU-02";
     } else if (workload === 4) {
-        heatMap = new HeatMap(SPmetrics, SPmaxXMETRIC, SPmaxYMETRIC, SPlength);
+        if(linear)
+            heatMap = new HeatMap(SPmetricsLinear, SPmaxXMETRICLinear, SPmaxYMETRICLinear, SPlengthLinear);
+        else
+            heatMap = new HeatMap(SPmetrics, SPmaxXMETRIC, SPmaxYMETRIC, SPlength);
         workloadName = "NAS SP"
     } else if (workload === 5) {
-        heatMap = new HeatMap(PGmetrics, PGmaxXMETRIC, PGmaxYMETRIC, PGlength);
+        if(linear)
+            heatMap = new HeatMap(PGmetricsLinear, PGmaxXMETRICLinear, PGmaxYMETRICLinear, PGlengthLinear);
+        else
+            heatMap = new HeatMap(PGmetrics, PGmaxXMETRIC, PGmaxYMETRIC, PGlength);
         workloadName = "SPEC pmniGhost";
     } else if (workload === 6) {
-        heatMap = new HeatMap(PSMmetrics, PSMmaxXMETRIC, PSMmaxYMETRIC, PSMlength);
+        if(linear)
+            heatMap = new HeatMap(PSMmetricsLinear, PSMmaxXMETRICLinear, PSMmaxYMETRICLinear, PSMlengthLinear);
+        else
+            heatMap = new HeatMap(PSMmetrics, PSMmaxXMETRIC, PSMmaxYMETRIC, PSMlength);
         workloadName = "SPEC pseismic";
     } else if (workload === 7) {
-        heatMap = new HeatMap(PBmetrics, PBmaxXMETRIC, PBmaxYMETRIC, PBlength);
+        if(linear)
+            heatMap = new HeatMap(PBmetricsLinear, PBmaxXMETRICLinear, PBmaxYMETRICLinear, PBlengthLinear);
+        else
+            heatMap = new HeatMap(PBmetrics, PBmaxXMETRIC, PBmaxYMETRIC, PBlength);
         workloadName = "SPEC pilbdc"
     }
 }
