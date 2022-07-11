@@ -32,7 +32,7 @@ function gradient(val, zero, ...colors) {
 function getColor(val) {
     let black = [0,0,0];
     let purple = [60,9,108];
-    let pink = [252, 186, 203];
+    let pink = [222, 77, 134];
     let green = [180, 227, 61];
     let blue = [180, 225, 255];
     let white = [255, 255, 255];

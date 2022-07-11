@@ -38,9 +38,9 @@ function buildAxes() {
     stroke(0);
     rect(x("l", -4), y("t", -4), sideLength + u(8), sideLength + u(8));
 
-    textSize(u(14));
+    textSize(u(21));
     textAlign(CENTER);
-    strokeWeight(1);
+    strokeWeight(0.5);
     fill(0);
     let counter = heatMap.size;
     if(linear) {
@@ -72,7 +72,7 @@ function buildAxes() {
                 noStroke();
                 translate(x("l", -20), yt);
                 rotate(radians(-90));
-                if(counter != 40 && counter != 60) text(sne(i), 0, 0);
+                if(counter != 30 && counter != 50 && counter != 60) text(sne(i), 0, 0);
                 pop();
             } else {
                 line(x0 - u(11), yt, x0 - u(5), yt);
@@ -88,23 +88,23 @@ function buildAxes() {
 
             push();
             noStroke();
-            text(dig3(counter * (heatMap.maxDT / heatMap.size) / 1000000) + " M", xt, y("b", -31));
+            text(dig3(counter * (heatMap.maxDT / heatMap.size) / 1000000) + " M", xt, y("b", -36));
             pop();
         } else
             line(xt, y("b", -11), xt, y("b", -5));
         counter++;
     }
     
-    textSize(u(28));
+    textSize(u(32));
     noStroke();
 
     push();
-    translate(x("l", -58), y0 + sideLength / 2);
+    translate(x("l", -63), y0 + sideLength / 2);
     rotate(radians(-90));
-    text("Page Importance [# Accesses / avg. Reuse Distance*]", 0, 0);
+    text("Importance [no. Accesses / avg. Reuse Distance]", 0, 0);
     pop();
 
-    text("Reuse Distance* [allocation to first access] (millions)", x0 + sideLength / 2, y("b", -70));
+    text("Distance [allocation to first access]", x0 + sideLength / 2, y("b", -80));
 
     textSize(u(35));
     text(workloadName, x0 + sideLength / 2, y("t", -23));
@@ -121,15 +121,15 @@ function buildGradient() {
     for (let i = gradientTopEdge; i < gradientTopEdge + gradientHeight; i++) {
         let val = i - gradientTopEdge;
         stroke(getColor(1 - (val / gradientHeight)));
-        line(x("r", -17), i, x("r", -57), i);
+        line(x("r", -30), i, x("r", -70), i);
     }
 
     noStroke();
     fill(0);
-    textSize(u(14));
+    textSize(u(21));
     textAlign(CENTER);
-    text("more\npages", x("r", -38), y("t", 14));
-    text("less\npages", x("r", -38), y("b", 25));
+    text("more\npages", x("r", -50), y("t", 10));
+    text("less\npages", x("r", -50), y("b", 27));
 
     pop();
 }
@@ -184,10 +184,11 @@ function setup() {
 } window.onresize = setup;
 
 function draw() {
-    infoButton.display();
-    zeroButton.display();
-    linearButton.display();
-    menuButton.display();
+    // infoButton.display();
+    // zeroButton.display();
+    // linearButton.display();
+    // menuButton.display();
+
     if (showMenu) {
         noStroke();
         fill(60, 9, 108, 15);
@@ -200,22 +201,25 @@ function draw() {
 }
 
 function mouseClicked() {
-    infoButton.click();
-    zeroButton.click();
-    linearButton.click();
+    // infoButton.click();
+    // zeroButton.click();
+    // linearButton.click();
 
-    let menuClick = menuButton.click();
-    let selectClick = false;
-    for (let i = 0; i < 8; i++) {
-        selectClick = selectClick || selectButtons[i].click();
-        selectButtons[i].shown = false;
-    }
-    let mapHover = ((mouseX >= x0 && mouseX <= x0 + sideLength) && 
-                    (mouseY >= y0 && mouseY <= y0 + sideLength));
+    // let menuClick = menuButton.click();
+    // let selectClick = false;
+    // for (let i = 0; i < 8; i++) {
+    //     selectClick = selectClick || selectButtons[i].click();
+    //     selectButtons[i].shown = false;
+    // }
+    // let mapHover = ((mouseX >= x0 && mouseX <= x0 + sideLength) && 
+    //                 (mouseY >= y0 && mouseY <= y0 + sideLength));
 
-    if(selectClick || (!menuClick && !mapHover)) {
-        showMenu = false;
-        setup();
-    }
+    // if(selectClick || (!menuClick && !mapHover)) {
+    //     showMenu = false;
+    //     setup();
+    // }
 
+    workload++;
+    workload %= 8;
+    setup();
 } window.ontouchend = mouseClicked;
